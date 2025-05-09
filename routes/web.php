@@ -43,6 +43,17 @@ Route::get('/data_penjualan/create', [DataPenjualanController::class, 'create'])
 Route::get('/pembelian/create', [PembelianController::class, 'create'])->name('pembelian.create');
 Route::get('/penjualan/create', [PenjualanController::class, 'create'])->name('penjualan.create');
 
+// kode yang ditambahkan. silahkan untuk mengurutkan sendiri
+Route::post('/pembelian/set-supplyer', [PembelianController::class, 'setSupplyer'])->name('pembelian.setSupplyer');
+Route::get('/pembelian/remove/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
+Route::post('/penjualan/set-pembeli', [PenjualanController::class, 'setPembeli'])->name('penjualan.setPembeli');
+Route::get('/penjualan/remove/{id}', [PenjualanController::class, 'removeItem'])->name('penjualan.removeItem');
+Route::get('/penjualan/clear', [PenjualanController::class, 'clearAll'])->name('penjualan.clearAll');
+Route::post('/penjualan/add-item', [PenjualanController::class, 'addItem'])->name('penjualan.addItem');
+Route::get('/data_beli', [PembelianController::class, 'dataPembelian'])->name('data_beli.index');
+Route::get('/data_jual', [PenjualanController::class, 'dataPenjualan'])->name('data_jual.index');
+
+
 
 Route::post('/kelola_admin', [AdminController::class, 'store'])->name('admin.store');
 Route::post('/kelola_penjual', [PenjualController::class, 'store'])->name('penjual.store');

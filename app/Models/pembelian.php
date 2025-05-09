@@ -18,6 +18,7 @@ class Pembelian extends Model
     protected $fillable = [
         'kode_trx_beli',
         'id_supplyer',
+        'id_barang',
         'nama_barang',
         'quantity',
         'harga',

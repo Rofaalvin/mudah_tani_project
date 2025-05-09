@@ -1,19 +1,19 @@
 @extends('penjual.layouts.app')
 
 @section('content')
-<h2 class="text-xl font-bold mb-4">Data Pembelian</h2>
+<h2 class="text-xl font-bold mb-4">Data Penjulan</h2>
 
 <div class="btn-container">
-    <a href="{{ url('/pembelian') }}" class="btn-green">Input Pembelian</a>
-    <a href="{{ url('/data_beli') }}" class="btn-green">Lihat Data Pembelian</a>
+    <a href="{{ url('/penjualan') }}" class="btn-green">Input Penjualan</a>
+    <a href="{{ url('/data_jual') }}" class="btn-green">Lihat Data Penjualan</a>
 </div>
 
-@if(count($pembelianItems) > 0)
+@if(count($penjualanItems) > 0)
     <table class="table w-full border border-gray-400 text-sm">
         <thead class="bg-gray-100">
             <tr>
                 <th class="border px-2 py-1">Kode Transaksi</th>
-                <th class="border px-2 py-1">Nama Supplier</th>
+                <th class="border px-2 py-1">Nama Pembeli</th>
                 <th class="border px-2 py-1">Tanggal</th>
                 <th class="border px-2 py-1">Kode Barang</th>
                 <th class="border px-2 py-1">Nama Barang</th>
@@ -23,10 +23,10 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($pembelianItems as $item)
+            @foreach($penjualanItems as $item)
                 <tr>
-                    <td class="border px-2 py-1 text-center">{{ $item->kode_trx_beli }}</td>
-                    <td class="border px-2 py-1 text-center">{{ $item->supplyer->nama_supplyer ?? '-' }}</td>
+                    <td class="border px-2 py-1 text-center">{{ $item->kode_trx_jual }}</td>
+                    <td class="border px-2 py-1 text-center">{{ $item->pembeli->nama_pembeli ?? '-' }}</td>
                     <td class="border px-2 py-1 text-center">{{ $item->tanggal }}</td>
                     <td class="border px-2 py-1 text-center">{{ $item->id_barang ?? '-' }}</td>
                     <td class="border px-2 py-1">{{ $item->nama_barang }}</td>
@@ -38,7 +38,7 @@
         </tbody>
     </table>
 @else
-    <p class="text-gray-600 mt-4">Belum ada data pembelian.</p>
+    <p class="text-gray-600 mt-4">Belum ada data penjualan.</p>
 @endif
 <style>
     .btn-green {
