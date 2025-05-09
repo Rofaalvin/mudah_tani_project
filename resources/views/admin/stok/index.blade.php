@@ -16,11 +16,11 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($stok as $item)
+            @foreach($produks as $produk)
                 <tr>
-                    <td>{{ $item->id_barang }}</td>
-                    <td>{{ $item->nama_barang }}</td>
-                    <td>{{ $item->total }}</td>
+                    <td>{{ $produk->id_produk }}</td>
+                    <td>{{ $produk->nama_produk }}</td>
+                    <td>{{ $produk->stok }}</td>
                 </tr>
             @endforeach
         </tbody>
