@@ -1,0 +1,157 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Pembelian;
+use App\Models\Supplyer;
+use App\Models\Produk;
+use Illuminate\Support\Str;
+
+class PembelianController extends Controller
+{
+    public function index()
+{
+    // Mendapatkan tanggal hari ini dalam format Y-m-d
+    $today = now()->toDateString();
+
+    // Mencari kode transaksi pembelian terakhir hari ini
+    $lastKodeHariIni = Pembelian::whereDate('tanggal', $today)
+                                ->where('kode_trx_beli', 'like', 'PB' . now()->format('Ymd') . '%')
+                                ->orderBy('kode_trx_beli', 'desc')
+                                ->first();
+
+    // Jika tidak ada transaksi hari ini, kode pertama untuk transaksi ini
+    if ($lastKodeHariIni) {
+        $lastKodeHariIni = $lastKodeHariIni->kode_trx_beli;
+    } else {
+        $lastKodeHariIni = 'PB' . now()->format('Ymd') . '000'; // Misalnya, jika tidak ada transaksi, kita mulai dari 'PB20250503000'
+    }
+
+    // Mengambil data pembelian dan suppliers
+    $pembelian = Pembelian::with('supplyer')->get();
+    $items = session()->get('pembelian_items', []);
+    $suppliers = Supplyer::all();
+    $produks = Produk::all();
+    $selectedSupplyer = session('selected_supplyer');
+
+    // Kirim data ke view
+    return view('penjual.pembelian.index', compact('pembelian', 'items', 'suppliers', 'selectedSupplyer', 'lastKodeHariIni','produks'));
+}
+
+
+    public function deleteItem($id)
+    {
+        $items = session()->get('pembelian_items', []);
+        $items = array_filter($items, fn($item) => $item['id'] != $id);
+        session()->put('pembelian_items', $items);
+
+        return redirect()->back()->with('success', 'Item berhasil dihapus.');
+    }
+
+    public function clearAll()
+    {
+        session()->forget(['pembelian_items', 'selected_supplyer']);
+        return redirect()->back()->with('success', 'Semua item berhasil dihapus.');
+    }
+
+    public function storeFinal(Request $request)
+    {
+        $request->validate([
+            'total' => 'required|numeric|min:0',
+            'kode_trx_beli' => 'required|string',
+        ]);
+
+        $kodeTransaksi = $request->input('kode_trx_beli');
+
+        $items = session()->get('pembelian_items', []);
+        $idSupplyer = session('id_supplyer');
+        if (!$idSupplyer) {
+            return redirect()->back()->with('error', 'Supplier belum dipilih.');
+        }
+
+        if (empty($items) || !$idSupplyer) {
+            return redirect()->back()->with('error', 'Data tidak lengkap untuk menyimpan transaksi.');
+        }
+
+        foreach ($items as $item) {
+            Pembelian::create([
+                'kode_trx_beli' => $kodeTransaksi,
+                'id_supplyer'   => $idSupplyer,
+                'nama_barang'   => $item['nama_barang'],
+                'quantity'      => $item['jumlah'],
+                'harga'         => $item['harga_satuan'],
+                'total'         => $item['harga_akhir'],
+                'tanggal'       => now(),
+            ]);
+        }
+
+        session()->forget(['pembelian_items', 'selected_supplyer']);
+        return redirect()->route('pembelian.index')->with('success', 'Transaksi pembelian berhasil disimpan.');
+    }
+
+    public function addItem(Request $request)
+    {
+        $item = [
+            'id_produk' => $request->id_produk,
+            'nama_produk' => $request->nama_produk,
+            'harga_satuan' => (int) $request->harga_satuan,
+            'jumlah' => (int) $request->jumlah,
+        ];
+
+        $cart = session()->get('cart_pembelian', []);
+        $cart[$item['id_produk']] = $item;
+        session(['cart_pembelian' => $cart]);
+
+        return redirect()->back();
+    }
+
+    public function removeItem($id)
+    {
+        $cart = session()->get('cart_pembelian', []);
+
+        // Hapus item dengan ID produk tertentu dari session
+        if (isset($cart[$id])) {
+            unset($cart[$id]);
+            session(['cart_pembelian' => $cart]);
+        }
+
+        return redirect()->back()->with('success', 'Item berhasil dihapus.');
+    }
+    public function tambahItem(Request $request)
+    {
+        $item = [
+            'id_produk'     => $request->kode_barang,
+            'nama_produk'   => $request->nama_barang,
+            'jumlah'        => $request->qty,
+            'harga_satuan'  => $request->harga,
+            'total'         => $request->qty * $request->harga,
+        ];
+
+        $cart = session()->get('cart_pembelian', []);
+        $cart[] = $item;
+        session()->put('cart_pembelian', $cart);
+
+        return redirect()->back()->with('success', 'Item berhasil ditambahkan.');
+    }
+    public function simpanPembelian(Request $request)
+    {
+        $pembelianInfo = [
+            'kode_trx_beli'  => $request->kode_trx_beli,
+            'nama_supplyer'  => $request->nama_supplyer,
+            'tanggal'        => $request->tanggal,
+        ];
+
+        session()->put('pembelianInfo', $pembelianInfo);
+
+        return redirect()->route('data_beli.index');
+    }
+
+public function dataBeli()
+{
+    // Mengambil semua data pembelian beserta detail dan supplier
+    $pembelians = Pembelian::with(['supplyer', 'details.produk'])->orderBy('tanggal', 'desc')->get();
+    return view('penjual.data_beli', compact('pembelians'));
+}
+
+}

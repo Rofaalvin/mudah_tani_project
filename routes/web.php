@@ -1,7 +1,97 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PenjualController;
+use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\SupplyerController;
+use App\Http\Controllers\PembeliController;
+use App\Http\Controllers\StokController;
+use App\Http\Controllers\ProdukJualController;
+use App\Http\Controllers\DataPembelianController;
+use App\Http\Controllers\DataPenjualanController;
+use App\Http\Controllers\PembelianController;
+use App\Http\Controllers\PenjualanController;
+use App\Http\Controllers\BerandaController;
+use App\Http\Controllers\DataBeliController;
+use App\Http\Controllers\Admin\DataPembelianSeederController;
+
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/kelola_admin', [AdminController::class, 'index'])->name('admin.index');
+Route::get('/kelola_penjual', [PenjualController::class, 'index'])->name('penjual.index');
+Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
+Route::get('/supplyer', [SupplyerController::class, 'index'])->name('supplyer.index');
+Route::get('/kelola_pembeli', [PembeliController::class, 'index'])->name('pembeli.index');
+Route::get('/data_pembelian', [DataPembelianController::class, 'index'])->name('data_pembelian.index');
+Route::get('/data_penjualan', [DataPenjualanController::class, 'index'])->name('data_penjualan.index');
+Route::get('/pembelian', [PembelianController::class, 'index'])->name('pembelian.index');
+Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan.index');
+Route::get('/stok', [StokController::class, 'index'])->name('stok.index');
+Route::get('/data_beli', [DataBeliController::class, 'index'])->name('data_beli.index');
+Route::get('/beranda', [BerandaController::class, 'index'])->name('beranda.index');
+
+Route::get('/kelola_admin/create', [AdminController::class, 'create'])->name('admin.create');
+Route::get('/kelola_penjual/create', [PenjualController::class, 'create'])->name('Penjual.create');
+Route::get('/produk/create', [ProdukController::class, 'create'])->name('produk.create');
+Route::get('/supplyer/create', [SupplyerController::class, 'create'])->name('supplyer.create');
+Route::get('/kelola_pembeli/create', [PembeliController::class, 'create'])->name('Pembeli.create');
+Route::get('/data_penjualan/create', [DataPenjualanController::class, 'create'])->name('data_penjualan.create');
+Route::get('/pembelian/create', [PembelianController::class, 'create'])->name('pembelian.create');
+Route::get('/penjualan/create', [PenjualanController::class, 'create'])->name('penjualan.create');
+
+
+Route::post('/kelola_admin', [AdminController::class, 'store'])->name('admin.store');
+Route::post('/kelola_penjual', [PenjualController::class, 'store'])->name('penjual.store');
+Route::post('/produk', [ProdukController::class, 'store'])->name('produk.store');
+Route::post('/supplyer', [SupplyerController::class, 'store'])->name('supplyer.store');
+Route::post('/kelola_pembeli', [PembeliController::class, 'store'])->name('pembeli.store');
+Route::post('/data_penjualan', [DataPenjualanController::class, 'store'])->name('data_penjualan.store');
+// Route::post('/pembelian', [PembelianController::class, 'store'])->name('pembelian.store');
+Route::post('/penjualan', [PenjualanController::class, 'store'])->name('penjualan.store');
+Route::post('/data-beli/store', [DataBeliController::class, 'store'])->name('data_beli.store');
+
+
+Route::get('/kelola_admin/{id}/edit', [AdminController::class, 'edit'])->name('admin.edit');
+Route::get('/kelola_Penjual/{id}/edit', [PenjualController::class, 'edit'])->name('penjual.edit');
+Route::get('/produk/{id}/edit', [ProdukController::class, 'edit'])->name('produk.edit');
+Route::get('/supplyer/{id}/edit', [SupplyerController::class, 'edit'])->name('supplyer.edit');
+Route::get('/kelola_Pembeli/{id}/edit', [PembeliController::class, 'edit'])->name('pembeli.edit');
+Route::get('/data_penjualan/{id}/edit', [DataPenjualanController::class, 'edit'])->name('data_penjualan.edit');
+// Route::get('/pembelian/{kode_trx_beli}/edit', [PembelianController::class, 'edit'])->name('pembelian.edit');
+Route::get('/penjualan/{id}', [PenjualanController::class, 'show'])->name('penjualan.show');
+
+
+Route::put('/kelola_admin/{id}', [AdminController::class, 'update'])->name('admin.update');
+Route::put('/kelola_penjual/{id}', [PenjualController::class, 'update'])->name('penjual.update');
+Route::put('/produk/{id}', [ProdukController::class, 'update'])->name('produk.update');
+Route::put('/supplyer/{id}', [SupplyerController::class, 'update'])->name('supplyer.update');
+Route::put('/kelola_pembeli/{id}', [PembeliController::class, 'update'])->name('pembeli.update');
+Route::put('/data_penjualan/{id}', [DataPenjualanController::class, 'update'])->name('data_penjualan.update');
+Route::put('/pembelian/{kode_trx_beli}', [PembelianController::class, 'update'])->name('pembelian.update');
+// Route::get('/penjualan/{id}/edit', [PenjualanController::class, 'edit'])->name('penjualan.edit');
+Route::put('/penjualan/{id}', [PenjualanController::class, 'update'])->name('penjualan.update');
+
+
+Route::delete('/kelola_admin/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
+Route::delete('/kelola_penjual/{id}', [PenjualController::class, 'destroy'])->name('penjual.destroy');
+Route::delete('/produk/{id}', [ProdukController::class, 'destroy'])->name('produk.destroy');
+Route::delete('/supplyer/{id}', [SupplyerController::class, 'destroy'])->name('supplyer.destroy');
+Route::delete('/kelola_pembeli/{id}', [PembeliController::class, 'destroy'])->name('pembeli.destroy');
+Route::delete('/data_penjualan/{id}', [DataPenjualanController::class, 'destroy'])->name('data_penjualan.destroy');
+// Route::delete('/pembelian/{kode_trx_beli}', [PembelianController::class, 'destroy'])->name('pembelian.destroy');
+Route::delete('/penjualan/{id}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');
+
+
+Route::get('/admin/seed-data-pembelian', [DataPembelianSeederController::class, 'runSeeder'])->name('admin.data_pembelian.seeder');
+Route::post('/pembelian/item', [PembelianController::class, 'storeItem'])->name('pembelian.storeItem');
+Route::post('/pembelian/final', [PembelianController::class, 'storeFinal'])->name('pembelian.storeFinal');
+Route::get('/pembelian/clear', [PembelianController::class, 'clearAll'])->name('pembelian.clearAll');
+Route::delete('/pembelian/item/{id}', [PembelianController::class, 'deleteItem'])->name('pembelian.deleteItem');
+Route::post('/pembelian/add-item', [PembelianController::class, 'addItem'])->name('pembelian.addItem');
+
+Route::delete('/pembelian/remove-item/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
+Route::post('/pembelian/tambah-item', [PembelianController::class, 'tambahItem'])->name('pembelian.tambahItem');
