@@ -1,24 +1,38 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DataPembelianSeederController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\PenjualController;
-use App\Http\Controllers\ProdukController;
-use App\Http\Controllers\SupplyerController;
-use App\Http\Controllers\PembeliController;
-use App\Http\Controllers\StokController;
-use App\Http\Controllers\ProdukJualController;
+use App\Http\Controllers\BerandaController;
+use App\Http\Controllers\DataBeliController;
 use App\Http\Controllers\DataPembelianController;
 use App\Http\Controllers\DataPenjualanController;
 use App\Http\Controllers\PembelianController;
+use App\Http\Controllers\PembeliController;
 use App\Http\Controllers\PenjualanController;
-use App\Http\Controllers\BerandaController;
-use App\Http\Controllers\DataBeliController;
-use App\Http\Controllers\Admin\DataPembelianSeederController;
-
+use App\Http\Controllers\PenjualController;
+use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StokController;
+use App\Http\Controllers\SupplyerController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/beranda', [BerandaController::class, 'index'])->name('beranda.index');
+    Route::post('/cart/add/{id}', [BerandaController::class, 'add'])->name('cart.add');
 });
 
 Route::get('/kelola_admin', [AdminController::class, 'index'])->name('admin.index');
@@ -52,7 +66,6 @@ Route::get('/penjualan/clear', [PenjualanController::class, 'clearAll'])->name('
 Route::post('/penjualan/add-item', [PenjualanController::class, 'addItem'])->name('penjualan.addItem');
 Route::get('/data_beli', [PembelianController::class, 'dataPembelian'])->name('data_beli.index');
 Route::get('/data_jual', [PenjualanController::class, 'dataPenjualan'])->name('data_jual.index');
-
 
 
 Route::post('/kelola_admin', [AdminController::class, 'store'])->name('admin.store');
@@ -106,3 +119,6 @@ Route::post('/pembelian/add-item', [PembelianController::class, 'addItem'])->nam
 
 Route::delete('/pembelian/remove-item/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
 Route::post('/pembelian/tambah-item', [PembelianController::class, 'tambahItem'])->name('pembelian.tambahItem');
+
+
+require __DIR__.'/auth.php';
