@@ -25,20 +25,20 @@
         <tbody>
             @foreach ($pembelis as $pembeli)
             <tr>
-                <td>{{ $pembeli->id_pembeli }}</td>
-                <td>{{ $pembeli->nama_pembeli }}</td>
+                <td>{{ $pembeli->id }}</td>
+                <td>{{ $pembeli->name }}</td>
                 <td>{{ $pembeli->email }}</td>
                 <td>{{ $pembeli->no_hp ?? '-' }}</td>
                 <td>{{ $pembeli->password}}</td>
                 <td>{{ $pembeli->alamat ?? '-' }}</td>
                 <td>
                     <!-- Tombol Edit (Trigger Modal) -->
-                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPembeliModal{{ $pembeli->id_pembeli }}">
+                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPembeliModal{{ $pembeli->id }}">
                         Edit
                     </button>
 
                     <!-- Form Hapus -->
-                    <form action="{{ route('pembeli.destroy', $pembeli->id_pembeli) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus pembeli ini?');">
+                    <form action="{{ route('pembeli.destroy', $pembeli->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus pembeli ini?');">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
@@ -47,7 +47,7 @@
             </tr>
 
             <!-- Modal Edit Pembeli -->
-            <div class="modal fade" id="editPembeliModal{{ $pembeli->id_pembeli }}" tabindex="-1" aria-labelledby="editPembeliModalLabel" aria-hidden="true">
+            <div class="modal fade" id="editPembeliModal{{ $pembeli->id }}" tabindex="-1" aria-labelledby="editPembeliModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -55,13 +55,13 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form action="{{ route('pembeli.update', $pembeli->id_pembeli) }}" method="POST">
+                            <form action="{{ route('pembeli.update', $pembeli->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
 
                                 <div class="mb-3">
                                     <label class="form-label">Nama</label>
-                                    <input type="text" class="form-control" name="nama_pembeli" value="{{ $pembeli->nama_pembeli }}" required>
+                                    <input type="text" class="form-control" name="nama_pembeli" value="{{ $pembeli->name }}" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Email</label>

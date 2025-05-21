@@ -3,14 +3,13 @@
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1>Data Pembelian</h1>
-        <a href="{{ route('admin.data_pembelian.seeder') }}"
-           class="btn btn-primary"
-           onclick="return confirm('Yakin ingin menjalankan ulang seeder? Data akan di-reset!')">
+        <a href="{{ route('admin.data_pembelian.seeder') }}" class="btn btn-primary"
+            onclick="return confirm('Yakin ingin menjalankan ulang seeder? Data akan di-reset!')">
             Refresh!
         </a>
     </div>
 
-    @if(session('success'))
+    @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
@@ -31,7 +30,7 @@
             <tbody>
                 @forelse($data_pembelian as $data)
                     <tr>
-                        <td>{{ $data->id_data_pembelian ?? '-' }}</td>
+                        <td>{{ $data->id }}</td>
                         <td>{{ $data->kode_trx_beli }}</td>
                         <td>{{ $data->nama_barang }}</td>
                         <td>{{ $data->supplyer->nama_supplyer ?? '-' }}</td>
@@ -46,6 +45,7 @@
                     </tr>
                 @endforelse
             </tbody>
+
         </table>
     </div>
 

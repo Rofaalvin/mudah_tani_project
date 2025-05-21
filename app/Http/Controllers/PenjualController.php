@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\Penjual;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class PenjualController extends Controller
 {
@@ -13,7 +16,7 @@ class PenjualController extends Controller
      */
     public function index()
     {
-        $penjuals = Penjual::all();
+        $penjuals = User::where('role', 'penjual')->get();
         return view('admin.kelola_penjual.index', compact('penjuals'));
     }
 
@@ -30,20 +33,28 @@ class PenjualController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'id_penjual' => 'required|string|unique:penjual,id_penjual',
-            'username' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:penjual,email',
-            'password' => 'required|string|min:6',
-            'no_hp' => 'nullable|string|max:15',
-            'alamat' => 'nullable|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|unique:users,email',
+                'password' => 'required|string|min:6',
+                'no_hp' => 'nullable|numeric|digits_between:1,15',
+                'alamat' => 'nullable|string',
+            ]);
 
-        $validated['password'] = Hash::make($validated['password']);
+            $validated['password'] = Hash::make($validated['password']);
+            $validated['role'] = 'penjual';
 
-        Penjual::create($validated);
+            User::create($validated);
 
-        return redirect()->route('penjual.index')->with('success', 'Penjual berhasil ditambahkan');
+            return redirect()->route('penjual.index')->with('success', 'Penjual berhasil ditambahkan.');
+        } catch (QueryException $e) {
+            Log::error('QueryException saat menambahkan penjual: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan pada database. Silakan coba lagi.');
+        } catch (\Exception $e) {
+            Log::error('Exception saat menambahkan penjual: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan. Silakan coba lagi.');
+        }
     }
 
     /**
@@ -51,7 +62,7 @@ class PenjualController extends Controller
      */
     public function edit($id)
     {
-        $penjual = Penjual::findOrFail($id);
+        $penjual = User::findOrFail($id);
         return view('admin.kelola_penjual.edit', compact('penjual'));
     }
 
@@ -60,11 +71,11 @@ class PenjualController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $penjual = Penjual::findOrFail($id);
+        $penjual = User::findOrFail($id);
 
         $validated = $request->validate([
-            'username' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|unique:penjual,email,' . $id . ',id_penjual',
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|string|email|unique:users,email,' . $id . ',id',
             'password' => 'nullable|string|min:6',
             'no_hp' => 'nullable|string|max:15',
             'alamat' => 'nullable|string',
@@ -86,7 +97,7 @@ class PenjualController extends Controller
      */
     public function destroy($id)
     {
-        $penjual = Penjual::findOrFail($id);
+        $penjual = User::findOrFail($id);
         $penjual->delete();
 
         return redirect()->route('penjual.index')->with('success', 'Penjual berhasil dihapus');

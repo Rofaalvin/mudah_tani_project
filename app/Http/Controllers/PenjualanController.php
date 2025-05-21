@@ -8,6 +8,7 @@ use App\Models\Penjualan;
 use Illuminate\Http\Request;
 use App\Models\Produk;
 use App\Models\Supplyer;
+use App\Models\User;
 use Illuminate\Support\Str;
 
 class PenjualanController extends Controller
@@ -43,7 +44,7 @@ class PenjualanController extends Controller
         // Mengambil data pembelian dan suppliers
         $penjualans = Penjualan::with('pembeli')->get();
         $items = session()->get('penjualan_items', []);
-        $pembelis = Pembeli::all();
+        $pembelis = User::where('role', 'pembeli')->get();
         $produks = Produk::all();
         // $selectedSupplyer = session('selected_supplyer');
 
@@ -59,11 +60,24 @@ class PenjualanController extends Controller
     public function setPembeli(Request $request)
     {
         $request->validate([
-            'id_pembeli' => 'required|exists:pembeli,id_pembeli',
+            'id_pembeli' => [
+                'required',
+                'exists:users,id',
+                function ($attribute, $value, $fail) {
+                    $user = User::find($value);
+                    if (!$user || $user->role !== 'pembeli') {
+                        $fail('Pengguna yang dipilih bukan pembeli.');
+                    }
+                },
+            ],
         ]);
 
-        session(['id_pembeli' => $request->id_pembeli]);
-        session(['selected_pembeli' => Pembeli::find($request->id_pembeli)->nama_pembeli]);
+        $user = User::find($request->id_pembeli);
+
+        session([
+            'id_pembeli' => $user->id,
+            'selected_pembeli' => $user->name,
+        ]);
 
         return response()->json(['message' => 'Pembeli berhasil disimpan dalam session.']);
     }
@@ -138,7 +152,7 @@ class PenjualanController extends Controller
 
     public function dataPenjualan()
     {
-        $penjualanItems = Penjualan::with('pembeli')->latest()->get();
+        $penjualanItems = Penjualan::with('user')->latest()->get();
 
         return view('penjual.data_jual.index', compact('penjualanItems'));
     }

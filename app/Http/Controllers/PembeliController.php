@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pembeli;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class PembeliController extends Controller
@@ -13,7 +14,7 @@ class PembeliController extends Controller
      */
     public function index()
     {
-        $pembelis = Pembeli::all();
+        $pembelis = User::where('role', 'pembeli')->get();
         return view('admin.kelola_pembeli.index', compact('pembelis'));
     }
 
@@ -29,21 +30,22 @@ class PembeliController extends Controller
      * Menyimpan pembeli baru ke database.
      */
     public function store(Request $request)
-   {
-    $validated = $request->validate([
-        'nama_pembeli' => 'required|string|max:255',
-        'email' => 'required|string|email|unique:pembeli,email',
-        'password' => 'required|string|min:6',
-        'no_hp' => 'nullable|string|max:15',
-        'alamat' => 'nullable|string|max:255',
-    ]);
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'no_hp' => 'nullable|string|max:15',
+            'alamat' => 'nullable|string|max:255',
+        ]);
 
-    $validated['password'] = Hash::make($validated['password']);
+        $validated['password'] = Hash::make($validated['password']);
+        $validated['role'] = 'pembeli';
 
-    Pembeli::create($validated);
+        User::create($validated);
 
-    return redirect()->route('pembeli.index')->with('success', 'Pembeli berhasil ditambahkan');
-   }
+        return redirect()->route('pembeli.index')->with('success', 'Pembeli berhasil ditambahkan');
+    }
 
 
     /**
@@ -51,7 +53,7 @@ class PembeliController extends Controller
      */
     public function edit($id)
     {
-        $pembeli = Pembeli::findOrFail($id);
+        $pembeli = User::findOrFail($id);
         return view('admin.kelola_pembeli.edit', compact('pembeli'));
     }
 
@@ -60,10 +62,10 @@ class PembeliController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $pembeli = Pembeli::findOrFail($id);
+        $pembeli = User::findOrFail($id);
 
         $validated = $request->validate([
-            'nama_pembeli' => 'sometimes|string|max:255',
+            'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:pembeli,email,' . $id . ',id_pembeli',
             'password' => 'nullable|string|min:6',
             'no_hp' => 'nullable|string|max:15',
@@ -87,7 +89,7 @@ class PembeliController extends Controller
      */
     public function destroy($id)
     {
-        $pembeli = Pembeli::findOrFail($id);
+        $pembeli = User::findOrFail($id);
         $pembeli->delete();
 
         return redirect()->route('pembeli.index')->with('success', 'Pembeli berhasil dihapus');

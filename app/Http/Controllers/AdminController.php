@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Admin;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
@@ -13,7 +14,7 @@ class AdminController extends Controller
      */
     public function index()
     {
-        $admins = Admin::all();
+        $admins = User::where('role', 'admin')->get();
         return view('admin.kelola_admin.index', compact('admins'));
     }
 
@@ -31,8 +32,7 @@ class AdminController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id_admin' => 'required|string|unique:admin,id_admin',
-            'username' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:admin,email',
             'password' => 'required|string|min:6',
             'no_hp' => 'nullable|string|max:15',
@@ -40,8 +40,9 @@ class AdminController extends Controller
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['role'] = 'admin';
 
-        Admin::create($validated);
+        User::create($validated);
 
         return redirect()->route('admin.index')->with('success', 'Admin berhasil ditambahkan');
     }
@@ -51,7 +52,7 @@ class AdminController extends Controller
      */
     public function edit($id)
     {
-        $admin = Admin::findOrFail($id);
+        $admin = User::findOrFail($id);
         return view('admin.kelola_admin.edit', compact('admin'));
     }
 
@@ -60,10 +61,10 @@ class AdminController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $admin = Admin::findOrFail($id);
+        $admin = User::findOrFail($id);
 
         $validated = $request->validate([
-            'username' => 'sometimes|required|string|max:255',
+            'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|unique:admin,email,' . $id . ',id_admin',
             'password' => 'nullable|string|min:6',
             'no_hp' => 'nullable|string|max:15',
@@ -86,9 +87,9 @@ class AdminController extends Controller
      */
     public function destroy($id)
     {
-        $admin = Admin::findOrFail($id);
+        $admin = User::findOrFail($id);
         $admin->delete();
 
-        return redirect()->route('admin.index')->with('success', 'Admin berhasil dihapus');
+        return redirect()->route('admin.index')->with('success', 'User berhasil dihapus');
     }
 }

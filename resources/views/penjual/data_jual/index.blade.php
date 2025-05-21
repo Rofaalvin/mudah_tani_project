@@ -26,7 +26,7 @@
             @foreach($penjualanItems as $item)
                 <tr>
                     <td class="border px-2 py-1 text-center">{{ $item->kode_trx_jual }}</td>
-                    <td class="border px-2 py-1 text-center">{{ $item->pembeli->nama_pembeli ?? '-' }}</td>
+                    <td class="border px-2 py-1 text-center">{{ $item->user->name ?? '-' }}</td>
                     <td class="border px-2 py-1 text-center">{{ $item->tanggal }}</td>
                     <td class="border px-2 py-1 text-center">{{ $item->id_barang ?? '-' }}</td>
                     <td class="border px-2 py-1">{{ $item->nama_barang }}</td>

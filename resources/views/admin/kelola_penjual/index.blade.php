@@ -14,7 +14,7 @@
         <thead class="table custom-header">
             <tr>
                 <th>ID Penjual</th>
-                <th>Username</th>
+                <th>Nama</th>
                 <th>Email</th>
                 <th>No HP</th>
                 <th>Alamat</th>
@@ -24,19 +24,19 @@
         <tbody>
             @foreach ($penjuals as $penjual)
             <tr>
-                <td>{{ $penjual->id_penjual }}</td>
-                <td>{{ $penjual->username }}</td>
+                <td>{{ $penjual->id }}</td>
+                <td>{{ $penjual->name }}</td>
                 <td>{{ $penjual->email }}</td>
                 <td>{{ $penjual->no_hp ?? '-' }}</td>
                 <td>{{ $penjual->alamat ?? '-' }}</td>
                 <td>
                     <!-- Tombol Edit (Trigger Modal) -->
-                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPenjualModal{{ $penjual->id_penjual }}">
+                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPenjualModal{{ $penjual->id }}">
                         Edit
                     </button>
 
                     <!-- Form Hapus -->
-                    <form action="{{ route('penjual.destroy', $penjual->id_penjual) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus penjual ini?');">
+                    <form action="{{ route('penjual.destroy', $penjual->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus penjual ini?');">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
@@ -45,7 +45,7 @@
             </tr>
 
             <!-- Modal Edit Penjual -->
-            <div class="modal fade" id="editPenjualModal{{ $penjual->id_penjual }}" tabindex="-1" aria-labelledby="editPenjualModalLabel" aria-hidden="true">
+            <div class="modal fade" id="editPenjualModal{{ $penjual->id }}" tabindex="-1" aria-labelledby="editPenjualModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -53,17 +53,17 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form action="{{ route('penjual.update', $penjual->id_penjual) }}" method="POST">
+                            <form action="{{ route('penjual.update', $penjual->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
 
                                 <div class="mb-3">
                                     <label class="form-label">ID Penjual</label>
-                                    <input type="text" class="form-control" name="id_penjual" value="{{ $penjual->id_penjual }}" readonly>
+                                    <input type="text" class="form-control" name="id_penjual" value="{{ $penjual->id }}" readonly>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Username</label>
-                                    <input type="text" class="form-control" name="username" value="{{ $penjual->username }}" required>
+                                    <label class="form-label">Nama</label>
+                                    <input type="text" class="form-control" name="name" value="{{ $penjual->name }}" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Email</label>
@@ -106,13 +106,13 @@
             <div class="modal-body">
                 <form action="{{ route('penjual.store') }}" method="POST">
                     @csrf
-                    <div class="mb-3">
+                    {{-- <div class="mb-3">
                         <label for="id_penjual" class="form-label">ID Penjual</label>
                         <input type="text" class="form-control" id="id_penjual" name="id_penjual" required>
-                    </div>
+                    </div> --}}
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <label for="username" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
@@ -124,7 +124,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="no_hp" class="form-label">No HP</label>
-                        <input type="text" class="form-control" id="no_hp" name="no_hp">
+                        <input type="numeric" class="form-control" id="no_hp" name="no_hp">
                     </div>
                     <div class="mb-3">
                         <label for="alamat" class="form-label">Alamat</label>

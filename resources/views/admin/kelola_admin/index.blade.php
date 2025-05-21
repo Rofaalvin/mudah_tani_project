@@ -14,7 +14,7 @@
         <thead class="table custom-header">
             <tr>
                 <th>ID Admin</th>
-                <th>Username</th>
+                <th>name</th>
                 <th>Email</th>
                 <th>No HP</th>
                 <th>Password</th>
@@ -25,20 +25,20 @@
         <tbody>
             @foreach ($admins as $admin)
             <tr>
-                <td>{{ $admin->id_admin }}</td>
-                <td>{{ $admin->username }}</td>
+                <td>{{ $admin->id }}</td>
+                <td>{{ $admin->name }}</td>
                 <td>{{ $admin->email }}</td>
                 <td>{{ $admin->no_hp ?? '-' }}</td>
                 <td>{{ $admin->password}}</td>
                 <td>{{ $admin->alamat ?? '-' }}</td>
                 <td>
                     <!-- Tombol Edit (Trigger Modal) -->
-                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editAdminModal{{ $admin->id_admin }}">
+                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editAdminModal{{ $admin->id }}">
                         Edit
                     </button>
 
                     <!-- Form Hapus -->
-                    <form action="{{ route('admin.destroy', $admin->id_admin) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus admin ini?');">
+                    <form action="{{ route('admin.destroy', $admin->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus admin ini?');">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
@@ -47,7 +47,7 @@
             </tr>
 
             <!-- Modal Edit Admin -->
-            <div class="modal fade" id="editAdminModal{{ $admin->id_admin }}" tabindex="-1" aria-labelledby="editAdminModalLabel" aria-hidden="true">
+            <div class="modal fade" id="editAdminModal{{ $admin->id }}" tabindex="-1" aria-labelledby="editAdminModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -55,17 +55,13 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form action="{{ route('admin.update', $admin->id_admin) }}" method="POST">
+                            <form action="{{ route('admin.update', $admin->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
 
                                 <div class="mb-3">
-                                    <label class="form-label">ID Admin</label>
-                                    <input type="text" class="form-control" name="id_admin" value="{{ $admin->id_admin }}" readonly>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Username</label>
-                                    <input type="text" class="form-control" name="username" value="{{ $admin->username }}" required>
+                                    <label class="form-label">name</label>
+                                    <input type="text" class="form-control" name="name" value="{{ $admin->name }}" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Email</label>
@@ -109,12 +105,8 @@
                 <form action="{{ route('admin.store') }}" method="POST">
                     @csrf
                     <div class="mb-3">
-                        <label for="id_admin" class="form-label">ID Admin</label>
-                        <input type="text" class="form-control" id="id_admin" name="id_admin" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <label for="name" class="form-label">name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>

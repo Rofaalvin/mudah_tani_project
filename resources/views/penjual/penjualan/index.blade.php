@@ -118,7 +118,7 @@
                                 class="border border-gray-300 rounded-sm px-2 py-1 text-xs sm:text-sm w-[150px]">
                                 <option value="">-- Pilih Pembeli --</option>
                                 @foreach ($pembelis as $pembeli)
-                                    <option value="{{ $pembeli->id_pembeli }}">{{ $pembeli->nama_pembeli }}</option>
+                                    <option value="{{ $pembeli->id }}">{{ $pembeli->name }}</option>
                                 @endforeach
                             </select>
                             <label for="tanggal" class="text-gray-800 pt-1">Tanggal</label>

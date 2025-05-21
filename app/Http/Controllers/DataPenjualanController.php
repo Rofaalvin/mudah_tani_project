@@ -2,28 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Penjualan;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class DataPenjualanController extends Controller
 {
     public function index()
     {
-        $dataPenjualans = DB::table('data_penjualan')->get();
+        $dataPenjualans = Penjualan::with('user')->get();
         return view('admin.data_penjualan.index', compact('dataPenjualans'));
     }
 
     public function create()
     {
-        return view('admin.data_penjualan.create');
+        $pembelis = User::where('role', 'pembeli')->get();
+        return view('admin.data_penjualan.create', compact('pembelis'));
     }
 
     public function store(Request $request)
     {
-        DB::table('data_penjualan')->insert([
+        $request->validate([
+            'kode_trx_jual' => 'required|string',
+            'id_pembeli' => 'required|exists:users,id',
+            'id_barang' => 'required|integer',
+            'nama_barang' => 'required|string',
+            'quantity' => 'required|integer|min:1',
+            'harga' => 'required|numeric|min:0',
+            'tanggal' => 'required|date',
+        ]);
+
+        Penjualan::create([
             'kode_trx_jual' => $request->kode_trx_jual,
+            'id_pembeli' => $request->id_pembeli,
             'id_barang' => $request->id_barang,
+            'nama_barang' => $request->nama_barang,
+            'quantity' => $request->quantity,
             'harga' => $request->harga,
+            'total' => $request->quantity * $request->harga,
+            'tanggal' => $request->tanggal,
         ]);
 
         return redirect()->route('data_penjualan.index')->with('success', 'Data berhasil ditambahkan.');
@@ -31,24 +48,36 @@ class DataPenjualanController extends Controller
 
     public function edit($id)
     {
-        $penjualan = DB::table('data_penjualan')->where('id_data_jual', $id)->first();
-        return view('admin.data_penjualan.edit', compact('penjualan'));
+        $penjualan = Penjualan::findOrFail($id);
+        $pembelis = User::where('role', 'pembeli')->get();
+        return view('admin.data_penjualan.edit', compact('penjualan', 'pembelis'));
     }
 
     public function update(Request $request, $id)
     {
-        DB::table('data_penjualan')->where('id_data_jual', $id)->update([
-            'kode_trx_jual' => $request->kode_trx_jual,
-            'id_barang' => $request->id_barang,
-            'harga' => $request->harga,
+        $penjualan = Penjualan::findOrFail($id);
+
+        $validated = $request->validate([
+            'kode_trx_jual' => 'required|string',
+            'id_pembeli' => 'required|exists:users,id',
+            'id_barang' => 'required|string',
+            'nama_barang' => 'required|string',
+            'quantity' => 'required|numeric|min:1',
+            'harga' => 'required|numeric|min:0',
+            'tanggal' => 'required|date',
         ]);
+
+        $validated['total'] = $validated['quantity'] * $validated['harga'];
+
+        $penjualan->update($validated);
 
         return redirect()->route('data_penjualan.index')->with('success', 'Data berhasil diupdate.');
     }
 
     public function destroy($id)
     {
-        DB::table('data_penjualan')->where('id_data_jual', $id)->delete();
+        $penjualan = Penjualan::findOrFail($id);
+        $penjualan->delete();
 
         return redirect()->route('data_penjualan.index')->with('success', 'Data berhasil dihapus.');
     }
