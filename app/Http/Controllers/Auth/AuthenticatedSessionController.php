@@ -40,7 +40,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         if ($user->isPembeli()) {
-            return redirect()->route('beranda.index');
+            return redirect()->route('dashboard');
         }
 
         // fallback jika role tidak dikenali

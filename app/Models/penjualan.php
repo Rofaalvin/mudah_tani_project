@@ -21,16 +21,22 @@ class Penjualan extends Model
         'harga',
         'total',
         'tanggal',
+        'status'
     ];
 
     // Relasi dengan Pembeli
     public function pembeli()
     {
-        return $this->belongsTo(Pembeli::class, 'id_pembeli' , 'id_pembeli');
+        return $this->belongsTo(Pembeli::class, 'id_pembeli', 'id_pembeli');
     }
 
     public function user()
     {
         return $this->belongsTo(User::class, 'id_pembeli', 'id');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(PenjualanItem::class, 'penjualan_id');
     }
 }

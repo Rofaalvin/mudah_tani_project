@@ -91,9 +91,9 @@ class PenjualanController extends Controller
 
         $kodeTransaksi = $request->input('kode_trx_jual');
         $items = session()->get('cart_penjualan', []);
-        $idSupplyer = session('id_pembeli');
+        $idPembeli = session('id_pembeli');
 
-        if (!$idSupplyer) {
+        if (!$idPembeli) {
             return redirect()->back()->with('error', 'Pembeli belum dipilih.');
         }
 
@@ -101,18 +101,31 @@ class PenjualanController extends Controller
             return redirect()->back()->with('error', 'Tidak ada item dalam transaksi.');
         }
 
+        // Hitung total transaksi
+        $totalTransaksi = 0;
         foreach ($items as $item) {
-            Penjualan::create([
-                'kode_trx_jual' => $kodeTransaksi,
-                'id_pembeli' => $idSupplyer,
-                'id_barang' => $item['id_produk'],
-                'nama_barang' => $item['nama_produk'],
-                'quantity' => $item['jumlah'],
+            $totalTransaksi += $item['harga_satuan'] * $item['jumlah'];
+        }
+
+        // Simpan ke tabel penjualan (hanya data transaksi)
+        $penjualan = Penjualan::create([
+            'kode_trx_jual' => $kodeTransaksi,
+            'id_pembeli' => $idPembeli,
+            'total' => $totalTransaksi,
+            'tanggal' => now(),
+        ]);
+
+        // Simpan setiap item ke tabel penjualan_items
+        foreach ($items as $item) {
+            $penjualan->items()->create([
+                'id_produk' => $item['id_produk'],
+                'nama_produk' => $item['nama_produk'],
                 'harga' => $item['harga_satuan'],
-                'total' => $item['harga_satuan'] * $item['jumlah'],
-                'tanggal' => now(),
+                'quantity' => $item['jumlah'],
+                'subtotal' => $item['harga_satuan'] * $item['jumlah'],
             ]);
 
+            // Update stok produk
             $produk = Produk::find($item['id_produk']);
             if ($produk) {
                 $produk->stok -= $item['jumlah'];
@@ -120,12 +133,11 @@ class PenjualanController extends Controller
             }
         }
 
-        session()->forget(['cart_penjualan', 'id_pembeli', 'selected_pembeli]']);
+        session()->forget(['cart_penjualan', 'id_pembeli', 'selected_pembeli']);
 
         return redirect()
             ->route('penjualan.index')
-            ->with('success', 'Transaksi penjualan berhasil disimpan.')
-            ->setStatusCode(200);
+            ->with('success', 'Transaksi penjualan berhasil disimpan.');
     }
 
     public function clearAll()
@@ -152,9 +164,9 @@ class PenjualanController extends Controller
 
     public function dataPenjualan()
     {
-        $penjualanItems = Penjualan::with('user')->latest()->get();
+        $penjualans = Penjualan::with(['user', 'items'])->latest()->get();
 
-        return view('penjual.data_jual.index', compact('penjualanItems'));
+        return view('penjual.data_jual.index', compact('penjualans'));
     }
 
     public function show($id)

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: May 21, 2025 at 06:02 PM
+-- Generation Time: May 31, 2025 at 05:16 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -348,12 +348,14 @@ CREATE TABLE `penjualan` (
   `id` int(11) NOT NULL,
   `kode_trx_jual` varchar(50) NOT NULL,
   `id_pembeli` varchar(50) NOT NULL,
-  `id_barang` varchar(20) NOT NULL,
-  `nama_barang` varchar(100) NOT NULL,
-  `quantity` int(11) NOT NULL,
-  `harga` int(11) NOT NULL,
+  `id_barang` varchar(20) DEFAULT NULL,
+  `nama_barang` varchar(100) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `harga` int(11) DEFAULT NULL,
   `total` int(11) NOT NULL,
   `tanggal` date NOT NULL,
+  `snap_token` varchar(255) DEFAULT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'pending',
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -362,9 +364,79 @@ CREATE TABLE `penjualan` (
 -- Dumping data for table `penjualan`
 --
 
-INSERT INTO `penjualan` (`id`, `kode_trx_jual`, `id_pembeli`, `id_barang`, `nama_barang`, `quantity`, `harga`, `total`, `tanggal`, `updated_at`, `created_at`) VALUES
-(7, 'PB20250521001', '2', 'B0001', 'Pestisida', 1, 20000, 20000, '2025-05-21', '2025-05-21 08:34:06', '2025-05-21 08:34:06'),
-(8, 'PB20250521002', '2', 'B0002', 'Pupuk Urea', 1, 43000, 43000, '2025-05-21', '2025-05-21 08:40:53', '2025-05-21 08:40:53');
+INSERT INTO `penjualan` (`id`, `kode_trx_jual`, `id_pembeli`, `id_barang`, `nama_barang`, `quantity`, `harga`, `total`, `tanggal`, `snap_token`, `status`, `updated_at`, `created_at`) VALUES
+(7, 'PB20250521001', '2', 'B0001', 'Pestisida', 1, 20000, 20000, '2025-05-21', NULL, 'pending', '2025-05-21 08:34:06', '2025-05-21 08:34:06'),
+(8, 'PB20250521002', '2', 'B0002', 'Pupuk Urea', 1, 43000, 43000, '2025-05-21', NULL, 'pending', '2025-05-21 08:40:53', '2025-05-21 08:40:53'),
+(9, 'TRX-6836C0567EF58', '2', NULL, NULL, NULL, NULL, 114000, '2025-05-28', NULL, 'pending', '2025-05-28 00:50:46', '2025-05-28 00:50:46'),
+(10, 'TRX-6836C1678DFB0', '2', NULL, NULL, NULL, NULL, 77000, '2025-05-28', NULL, 'pending', '2025-05-28 00:55:19', '2025-05-28 00:55:19'),
+(11, 'PB20250528001', '2', NULL, NULL, NULL, NULL, 34000, '2025-05-28', NULL, 'pending', '2025-05-28 00:56:50', '2025-05-28 00:56:50'),
+(12, 'PB20250528002', '2', NULL, NULL, NULL, NULL, 34000, '2025-05-28', NULL, 'pending', '2025-05-28 01:13:52', '2025-05-28 01:13:52'),
+(13, 'PB20250528003', '2', NULL, NULL, NULL, NULL, 17000, '2025-05-28', NULL, 'pending', '2025-05-28 01:17:02', '2025-05-28 01:17:02'),
+(14, 'PB20250528004', '2', NULL, NULL, NULL, NULL, 17000, '2025-05-28', NULL, 'pending', '2025-05-28 01:24:26', '2025-05-28 01:24:26'),
+(15, 'PB20250528005', '2', NULL, NULL, NULL, NULL, 17000, '2025-05-28', NULL, 'pending', '2025-05-28 01:37:46', '2025-05-28 01:37:46'),
+(16, 'PB20250528006', '2', NULL, NULL, NULL, NULL, 308000, '2025-05-28', NULL, 'paid', '2025-05-30 14:36:04', '2025-05-28 03:12:34'),
+(17, 'PB20250528007', '2', NULL, NULL, NULL, NULL, 106000, '2025-05-28', NULL, 'pending', '2025-05-28 09:00:09', '2025-05-28 09:00:09'),
+(18, 'PB20250529001', '2', NULL, NULL, NULL, NULL, 17000, '2025-05-29', '5e7c80ff-19b1-4723-9aa2-3529692150d5', 'pending', '2025-05-29 10:09:44', '2025-05-29 10:09:43'),
+(19, 'PB20250529002', '2', NULL, NULL, NULL, NULL, 43000, '2025-05-29', 'd8ba969b-9b87-4a17-8d8e-4848cbf1fd85', 'pending', '2025-05-29 10:31:47', '2025-05-29 10:31:47'),
+(20, 'PB20250529003', '2', NULL, NULL, NULL, NULL, 20000, '2025-05-29', 'c1f092b2-fde5-429d-85ca-24f7d661289f', 'pending', '2025-05-29 10:34:03', '2025-05-29 10:34:02'),
+(21, 'PB20250529004', '2', NULL, NULL, NULL, NULL, 17000, '2025-05-29', 'c872bd88-f6d8-4461-a0a8-69f8f8a55178', 'pending', '2025-05-29 10:36:26', '2025-05-29 10:36:26'),
+(22, 'PB20250529005', '2', NULL, NULL, NULL, NULL, 37000, '2025-05-29', 'f7bd3edb-ccc1-4748-8286-f6eecae5db4c', 'paid', '2025-05-30 13:21:39', '2025-05-29 10:39:31'),
+(23, 'PB20250529006', '2', NULL, NULL, NULL, NULL, 43000, '2025-05-29', '9fdc4add-fd72-4a4b-ac03-88b3a7f60e71', 'paid', '2025-05-30 13:21:25', '2025-05-29 10:40:23'),
+(24, 'PB20250529007', '2', NULL, NULL, NULL, NULL, 43000, '2025-05-29', 'd32da00d-0a3d-429f-a1db-0a7c23fe295a', 'paid', '2025-05-30 13:21:17', '2025-05-29 10:41:48'),
+(25, 'PB20250529008', '2', NULL, NULL, NULL, NULL, 43000, '2025-05-29', '8550ea93-3c08-4605-8061-8c0f32f6873e', 'paid', '2025-05-29 10:45:14', '2025-05-29 10:44:55'),
+(26, 'PB20250529009', '2', NULL, NULL, NULL, NULL, 20000, '2025-05-29', 'a2938eb6-d715-48ba-bd53-c434554d4094', 'paid', '2025-05-30 13:12:55', '2025-05-29 10:48:54'),
+(27, 'PB20250531001', '2', NULL, NULL, NULL, NULL, 106000, '2025-05-31', 'b4913906-ded2-44b9-b155-9acb615f1630', 'paid', '2025-05-31 08:12:37', '2025-05-31 08:11:23');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `penjualan_items`
+--
+
+CREATE TABLE `penjualan_items` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `penjualan_id` int(11) NOT NULL,
+  `id_produk` varchar(50) NOT NULL,
+  `nama_produk` varchar(255) NOT NULL,
+  `harga` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `subtotal` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `penjualan_items`
+--
+
+INSERT INTO `penjualan_items` (`id`, `penjualan_id`, `id_produk`, `nama_produk`, `harga`, `quantity`, `subtotal`, `created_at`, `updated_at`) VALUES
+(1, 9, 'B0001', 'Pestisida', 20000, 1, 20000, '2025-05-28 00:50:46', '2025-05-28 00:50:46'),
+(2, 9, 'B0002', 'Pupuk Urea', 43000, 1, 43000, '2025-05-28 00:50:46', '2025-05-28 00:50:46'),
+(3, 9, 'B0003', 'Cangkul', 17000, 3, 51000, '2025-05-28 00:50:46', '2025-05-28 00:50:46'),
+(4, 10, 'B0003', 'Cangkul', 17000, 2, 34000, '2025-05-28 00:55:19', '2025-05-28 00:55:19'),
+(5, 10, 'B0002', 'Pupuk Urea', 43000, 1, 43000, '2025-05-28 00:55:19', '2025-05-28 00:55:19'),
+(6, 11, 'B0003', 'Cangkul', 17000, 2, 34000, '2025-05-28 00:56:50', '2025-05-28 00:56:50'),
+(7, 12, 'B0003', 'Cangkul', 17000, 2, 34000, '2025-05-28 01:13:52', '2025-05-28 01:13:52'),
+(8, 13, 'B0003', 'Cangkul', 17000, 1, 17000, '2025-05-28 01:17:02', '2025-05-28 01:17:02'),
+(9, 14, 'B0003', 'Cangkul', 17000, 1, 17000, '2025-05-28 01:24:26', '2025-05-28 01:24:26'),
+(10, 15, 'B0003', 'Cangkul', 17000, 1, 17000, '2025-05-28 01:37:46', '2025-05-28 01:37:46'),
+(11, 16, 'B0003', 'Cangkul', 17000, 7, 119000, '2025-05-28 03:12:34', '2025-05-28 03:12:34'),
+(12, 16, 'B0002', 'Pupuk Urea', 43000, 3, 129000, '2025-05-28 03:12:34', '2025-05-28 03:12:34'),
+(13, 16, 'B0001', 'Pestisida', 20000, 3, 60000, '2025-05-28 03:12:34', '2025-05-28 03:12:34'),
+(14, 17, 'B0001', 'Pestisida', 20000, 1, 20000, '2025-05-28 09:00:09', '2025-05-28 09:00:09'),
+(15, 17, 'B0002', 'Pupuk Urea', 43000, 2, 86000, '2025-05-28 09:00:09', '2025-05-28 09:00:09'),
+(16, 18, 'B0003', 'Cangkul', 17000, 1, 17000, '2025-05-29 10:09:43', '2025-05-29 10:09:43'),
+(17, 19, 'B0002', 'Pupuk Urea', 43000, 1, 43000, '2025-05-29 10:31:47', '2025-05-29 10:31:47'),
+(18, 20, 'B0001', 'Pestisida', 20000, 1, 20000, '2025-05-29 10:34:02', '2025-05-29 10:34:02'),
+(19, 21, 'B0003', 'Cangkul', 17000, 1, 17000, '2025-05-29 10:36:26', '2025-05-29 10:36:26'),
+(20, 22, 'B0001', 'Pestisida', 20000, 1, 20000, '2025-05-29 10:39:31', '2025-05-29 10:39:31'),
+(21, 22, 'B0003', 'Cangkul', 17000, 1, 17000, '2025-05-29 10:39:31', '2025-05-29 10:39:31'),
+(22, 23, 'B0002', 'Pupuk Urea', 43000, 1, 43000, '2025-05-29 10:40:23', '2025-05-29 10:40:23'),
+(23, 24, 'B0002', 'Pupuk Urea', 43000, 1, 43000, '2025-05-29 10:41:48', '2025-05-29 10:41:48'),
+(24, 25, 'B0002', 'Pupuk Urea', 43000, 1, 43000, '2025-05-29 10:44:55', '2025-05-29 10:44:55'),
+(25, 26, 'B0001', 'Pestisida', 20000, 1, 20000, '2025-05-29 10:48:54', '2025-05-29 10:48:54'),
+(26, 27, 'B0002', 'Pupuk Urea', 43000, 2, 86000, '2025-05-31 08:11:23', '2025-05-31 08:11:23'),
+(27, 27, 'B0001', 'Pestisida', 20000, 1, 20000, '2025-05-31 08:11:23', '2025-05-31 08:11:23');
 
 -- --------------------------------------------------------
 
@@ -387,8 +459,8 @@ CREATE TABLE `produk` (
 --
 
 INSERT INTO `produk` (`id_produk`, `nama_produk`, `harga`, `created_at`, `updated_at`, `stok`, `gambar`) VALUES
-('B0001', 'Pestisida', '20000', '2025-05-02 23:13:47', '2025-05-21 08:34:06', '19', 'images/produk/1746252827_pestisida.jpg'),
-('B0002', 'Pupuk Urea', '43000', '2025-05-02 23:14:19', '2025-05-21 08:40:53', '18', 'images/produk/1746252859_pupuk urea.jpg'),
+('B0001', 'Pestisida', '20000', '2025-05-02 23:13:47', '2025-05-31 08:11:23', '17', 'images/produk/1746252827_pestisida.jpg'),
+('B0002', 'Pupuk Urea', '43000', '2025-05-02 23:14:19', '2025-05-31 08:11:23', '14', 'images/produk/1746252859_pupuk urea.jpg'),
 ('B0003', 'Cangkul', '17000', '2025-05-02 23:15:00', '2025-05-09 05:29:30', '22', 'images/produk/1746252900_cangkul.jpg');
 
 -- --------------------------------------------------------
@@ -432,7 +504,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('bljxgyb6z7Pn6npuPPKE2Nt7RDNSEPjVpOQPonZG', 1, '192.168.100.133', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiTEhaVnNZR3BSNldOeFJJQjhuVFlpbVNKTXdUVGtqQUVmcXdBMXZaRiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDI6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xMzM6ODAwMC9kYXRhX3Blbmp1YWxhbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czoxNjoic2VsZWN0ZWRfcGVtYmVsaSI7czo0OiJUZXN0IjtzOjIyOiJQSFBERUJVR0JBUl9TVEFDS19EQVRBIjthOjA6e319', 1747843273);
+('HNDY0zLFGlhndbbT0MebQcZTIZWuoaZ0V7L0RSCL', 2, '192.168.100.133', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiMUU3ZVZxN3h1bm0wdzJEeThhaHJoQ2xmRks5Rm1uMUpGeTA1VnduSyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDU6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xMzM6ODAwMC9teV9vcmRlcnMvaGlzdG9yeSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9fQ==', 1748704396);
 
 -- --------------------------------------------------------
 
@@ -641,6 +713,13 @@ ALTER TABLE `penjualan`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `penjualan_items`
+--
+ALTER TABLE `penjualan_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `penjualan_id` (`penjualan_id`);
+
+--
 -- Indexes for table `produk`
 --
 ALTER TABLE `produk`
@@ -747,7 +826,13 @@ ALTER TABLE `pembelian`
 -- AUTO_INCREMENT for table `penjualan`
 --
 ALTER TABLE `penjualan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+
+--
+-- AUTO_INCREMENT for table `penjualan_items`
+--
+ALTER TABLE `penjualan_items`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `supplyer`
@@ -760,6 +845,16 @@ ALTER TABLE `supplyer`
 --
 ALTER TABLE `users`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `penjualan_items`
+--
+ALTER TABLE `penjualan_items`
+  ADD CONSTRAINT `penjualan_items_ibfk_1` FOREIGN KEY (`penjualan_id`) REFERENCES `penjualan` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

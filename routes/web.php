@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\Admin\DataPembelianSeederController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\BerandaController;
+use App\Http\Controllers\User\BerandaController;
+use App\Http\Controllers\CheckOutController;
 use App\Http\Controllers\DataBeliController;
 use App\Http\Controllers\DataPembelianController;
 use App\Http\Controllers\DataPenjualanController;
@@ -14,15 +15,19 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\SupplyerController;
+use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\User\OrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -32,7 +37,23 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/beranda', [BerandaController::class, 'index'])->name('beranda.index');
+
+    Route::get('/products', [BerandaController::class, 'products'])->name('product.index');
+
     Route::post('/cart/add/{id}', [BerandaController::class, 'add'])->name('cart.add');
+    Route::get('/cart/list', [BerandaController::class, 'cartList'])->name('cart.list');
+    Route::post('/cart/update', [BerandaController::class, 'update'])->name('cart.update');
+
+    Route::get('/checkout', [BerandaController::class, 'checkout'])->name('checkout.index');
+    Route::get('/order/proses', [CheckOutController::class, 'process'])->name('order.proses');
+    Route::get('/order/payment/{id}', [CheckOutController::class, 'payment'])->name('order.payment');
+    Route::get('/payment/success/{penjualan}', [CheckOutController::class, 'success'])->name('user.payment.success');
+
+
+    Route::get('/my_orders', [OrderController::class, 'index'])->name('my.orders.index');
+    Route::get('/my_orders/history', [OrderController::class, 'history'])->name('my.orders.history');
+    Route::get('/my_orders/{id}', [OrderController::class, 'show'])->name('my.orders.show');
+
 });
 
 Route::get('/kelola_admin', [AdminController::class, 'index'])->name('admin.index');
@@ -117,8 +138,8 @@ Route::get('/pembelian/clear', [PembelianController::class, 'clearAll'])->name('
 Route::delete('/pembelian/item/{id}', [PembelianController::class, 'deleteItem'])->name('pembelian.deleteItem');
 Route::post('/pembelian/add-item', [PembelianController::class, 'addItem'])->name('pembelian.addItem');
 
-Route::delete('/pembelian/remove-item/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
+// Route::delete('/pembelian/remove-item/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
 Route::post('/pembelian/tambah-item', [PembelianController::class, 'tambahItem'])->name('pembelian.tambahItem');
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
