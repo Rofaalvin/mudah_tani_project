@@ -7,10 +7,31 @@ use Illuminate\Http\Request;
 
 class SupplyerController extends Controller
 {
-    public function index()
+    /**
+     * Menampilkan daftar supplier dengan fungsionalitas pencarian dan paginasi.
+     */
+    public function index(Request $request)
     {
-        $suppliers = Supplyer::all();
-        return view('admin.supplyer.index', compact('suppliers'));
+        // Ambil kata kunci pencarian dari request
+        $search = $request->input('search');
+
+        // Mulai query, jangan langsung ambil semua data
+        $query = Supplyer::query();
+
+        // Jika ada kata kunci pencarian, tambahkan kondisi where
+        if ($search) {
+            // Cari berdasarkan nama, alamat, atau bahkan ID supplier
+            $query->where('nama_supplyer', 'like', "%{$search}%")
+                ->orWhere('alamat', 'like', "%{$search}%")
+                ->orWhere('id_supplyer', 'like', "%{$search}%");
+        }
+
+        // Ambil data dengan paginasi (misal: 10 per halaman) dan urutkan
+        // dari yang terbaru. Sertakan juga query string pada link paginasi.
+        $suppliers = $query->latest()->paginate(10)->appends($request->query());
+
+        // Kirim data yang sudah difilter dan dipaginasi ke view
+        return view('admin.supplyer.index', compact('suppliers', 'search'));
     }
 
     public function create()

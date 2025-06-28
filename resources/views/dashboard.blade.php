@@ -167,7 +167,7 @@
                                                 </p>
                                                 @if($transaction->status == 'pending')
                                                     <a 
-                                                    href="{{ route('order.payment', parameters: $transaction->id) }}" 
+                                                    href="{{ route('order.payment', ['id' => $transaction->id]) }}" 
                                                     class="text-sm text-purple-600 hover:text-purple-700 font-medium">
                                                         Pay Now →
                                                     </a>

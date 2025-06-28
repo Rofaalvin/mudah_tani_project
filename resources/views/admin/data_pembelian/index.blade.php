@@ -9,6 +9,30 @@
         </a>
     </div>
 
+    <!-- Form Filter Bulan -->
+    <div class="card mb-4">
+        <div class="card-header">
+            Filter Data
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('data_pembelian.index') }}" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="filter_bulan" class="form-label">Pilih Bulan & Tahun</label>
+                    <input type="text" class="form-control" id="month-picker" name="filter_bulan"
+                        value="{{ $filterBulan ?? '' }}" placeholder="Pilih bulan...">
+                </div>
+                <div class="col-md-auto">
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-filter me-1"></i> Filter
+                    </button>
+                    <a href="{{ route('data_pembelian.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt me-1"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
@@ -53,3 +77,18 @@
         {{ $data_pembelian->links() }}
     </div>
 @endsection
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr("#month-picker", {
+                plugins: [
+                    new monthSelectPlugin({
+                        shorthand: true,
+                        dateFormat: "Y-m",
+                        altFormat: "F Y",
+                    })
+                ]
+            });
+        });
+    </script>
+@endpush

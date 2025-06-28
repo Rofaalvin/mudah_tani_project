@@ -20,8 +20,13 @@ class Penjualan extends Model
         'quantity',
         'harga',
         'total',
+        'diskon',
+        'total_final',
         'tanggal',
-        'status'
+        'status',
+        'delivery_method',
+        'shipping_cost',
+        'shipping_address'
     ];
 
     // Relasi dengan Pembeli

@@ -7,10 +7,30 @@ use App\Models\Produk;
 
 class ProdukController extends Controller
 {
-    public function index()
+    /**
+     * Menampilkan daftar produk dengan fungsionalitas pencarian dan paginasi.
+     */
+    public function index(Request $request)
     {
-        $produks = Produk::all();
-        return view('penjual.produk.index', compact('produks'));
+        // Ambil kata kunci pencarian dari request
+        $search = $request->input('search');
+
+        // Mulai query ke model Produk
+        $query = Produk::query();
+
+        // Jika ada input pencarian, tambahkan kondisi filter
+        // Di sini kita mencari berdasarkan nama produk ATAU ID produk
+        if ($search) {
+            $query->where('nama_produk', 'like', "%{$search}%")
+                ->orWhere('id_produk', 'like', "%{$search}%");
+        }
+
+        // Ambil data dengan paginasi (misal: 10 per halaman), urutkan dari yang terbaru.
+        // Jangan lupa sertakan query string pada link paginasi agar filter tetap aktif.
+        $produks = $query->latest('created_at')->paginate(10)->appends($request->query());
+
+        // Kirim data yang sudah siap ke view
+        return view('penjual.produk.index', compact('produks', 'search'));
     }
 
     public function create()
@@ -93,30 +113,30 @@ class ProdukController extends Controller
     }
 
     public function addItem(Request $request)
-{
-    $validated = $request->validate([
-        'id_produk' => 'required|string',
-        'nama_barang' => 'required|string',
-        'harga_satuan' => 'required|numeric',
-        'jumlah' => 'required|integer|min:1',
-    ]);
+    {
+        $validated = $request->validate([
+            'id_produk' => 'required|string',
+            'nama_barang' => 'required|string',
+            'harga_satuan' => 'required|numeric',
+            'jumlah' => 'required|integer|min:1',
+        ]);
 
-    $items = session()->get('pembelian_items', []);
+        $items = session()->get('pembelian_items', []);
 
-    $id = Str::uuid()->toString();
+        $id = Str::uuid()->toString();
 
-    $items[] = [
-        'id' => $id,
-        'id_produk' => $validated['id_produk'],
-        'nama_barang' => $validated['nama_barang'],
-        'harga_satuan' => $validated['harga_satuan'],
-        'jumlah' => $validated['jumlah'],
-        'harga_akhir' => $validated['harga_satuan'] * $validated['jumlah'],
-    ];
+        $items[] = [
+            'id' => $id,
+            'id_produk' => $validated['id_produk'],
+            'nama_barang' => $validated['nama_barang'],
+            'harga_satuan' => $validated['harga_satuan'],
+            'jumlah' => $validated['jumlah'],
+            'harga_akhir' => $validated['harga_satuan'] * $validated['jumlah'],
+        ];
 
-    session()->put('pembelian_items', $items);
+        session()->put('pembelian_items', $items);
 
-    return redirect()->back()->with('success', 'Item berhasil ditambahkan.');
-}
+        return redirect()->back()->with('success', 'Item berhasil ditambahkan.');
+    }
 
 }

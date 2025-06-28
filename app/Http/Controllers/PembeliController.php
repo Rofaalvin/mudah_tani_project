@@ -12,10 +12,29 @@ class PembeliController extends Controller
     /**
      * Menampilkan daftar semua pembeli.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $pembelis = User::where('role', 'pembeli')->get();
-        return view('admin.kelola_pembeli.index', compact('pembelis'));
+        // Ambil kata kunci pencarian dari request
+        $search = $request->input('search');
+
+        // Mulai query untuk user dengan role 'pembeli'
+        $query = User::where('role', 'pembeli');
+
+        // Jika ada kata kunci pencarian, terapkan filter
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('no_hp', 'like', "%{$search}%");
+            });
+        }
+
+        // Ambil data dengan paginasi (misal: 10 per halaman) dan urutkan
+        // dari yang terbaru. Sertakan juga query string pada link paginasi.
+        $pembelis = $query->latest()->paginate(10)->appends($request->query());
+
+        // Kirim data yang sudah difilter dan dipaginasi ke view
+        return view('admin.kelola_pembeli.index', compact('pembelis', 'search'));
     }
 
     /**

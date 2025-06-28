@@ -24,6 +24,8 @@ class Pembelian extends Model
         'harga',
         'total',
         'tanggal',
+        'diskon',
+        'total_final',
     ];
 
     public $timestamps = false;

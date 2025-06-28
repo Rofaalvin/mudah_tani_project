@@ -4,14 +4,49 @@ namespace App\Http\Controllers;
 
 use App\Models\Penjualan;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DataPenjualanController extends Controller
 {
-    public function index()
+    /**
+     * Menampilkan data penjualan dengan filter user dan bulan.
+     */
+    public function index(Request $request)
     {
-        $dataPenjualans = Penjualan::with('user')->get();
-        return view('admin.data_penjualan.index', compact('dataPenjualans'));
+        // Ambil parameter filter dari request
+        $filterUser = $request->input('filter_user');
+        $filterBulan = $request->input('filter_bulan');
+
+        // Mulai query untuk data penjualan dengan relasi 'user'
+        $query = Penjualan::with('user')->latest('tanggal');
+
+        // Terapkan filter jika ada input 'filter_user'
+        if ($filterUser) {
+            $query->where('id_pembeli', $filterUser);
+        }
+
+        // Terapkan filter jika ada input 'filter_bulan'
+        if ($filterBulan) {
+            try {
+                // Ubah format YYYY-MM menjadi objek tanggal
+                $date = Carbon::createFromFormat('Y-m', $filterBulan);
+                // Filter berdasarkan tahun dan bulan
+                $query->whereYear('tanggal', $date->year)
+                    ->whereMonth('tanggal', $date->month);
+            } catch (\Exception $e) {
+                // Abaikan filter jika formatnya tidak valid
+            }
+        }
+
+        // Ambil semua data pengguna dengan role 'pembeli' untuk dropdown filter
+        $users = User::where('role', 'pembeli')->orderBy('name')->get();
+
+        // Lakukan paginasi dan sertakan parameter filter pada link halaman
+        $dataPenjualans = $query->paginate(15)->appends($request->query());
+
+        // Kirim semua data yang diperlukan ke view
+        return view('admin.data_penjualan.index', compact('dataPenjualans', 'users', 'filterUser', 'filterBulan'));
     }
 
     public function create()

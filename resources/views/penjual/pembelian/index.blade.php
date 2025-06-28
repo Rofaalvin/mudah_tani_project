@@ -290,11 +290,13 @@
                         value="{{ $lastKodeHariIni ?? '' }}" class="border rounded-sm p-2 text-sm" readonly hidden>
                 </div>
 
-                <div class="flex flex-col">
-                    {{-- <label for="total" class="text-sm font-semibold">Total</label> --}}
+                {{-- <div class="flex flex-col">
                     <input type="number" name="total" id="total_amount" class="border rounded-sm p-2 text-sm"
                         value="{{ $total }}" placeholder="Masukkan total pembelian" hidden>
-                </div>
+                </div> --}}
+
+                <input type="hidden" name="diskon" id="diskon_final" value="{{ old('diskon', 0) }}">
+                <input type="hidden" name="total_final" id="total_final" value="{{ $total }}">
 
                 <button type="submit"
                     class="bg-orange-600 text-white font-semibold px-4 py-1 rounded-sm hover:bg-orange-700 transition text-sm">Simpan</button>
@@ -323,7 +325,10 @@
             // Update nilai diskon dalam rupiah dan total harga di input
             document.getElementById('diskon_rupiah').value = formatRupiah(diskonRupiah);
             document.getElementById('total_harga').value = formatRupiah(total);
-            document.getElementById('total_amount').value = total;
+
+            // PERUBAHAN 2: Update nilai pada input tersembunyi untuk dikirim ke controller
+            document.getElementById('diskon_final').value = diskonPersen;
+            document.getElementById('total_final').value = total;
 
             // Update tagihan
             updateTagihan(total);

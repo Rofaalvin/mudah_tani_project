@@ -12,10 +12,29 @@ class AdminController extends Controller
     /**
      * Menampilkan daftar semua admin.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $admins = User::where('role', 'admin')->get();
-        return view('admin.kelola_admin.index', compact('admins'));
+        // Ambil kata kunci pencarian dari request
+        $search = $request->input('search');
+
+        // Mulai query untuk user dengan role 'admin'
+        $query = User::where('role', 'admin');
+
+        // Jika ada kata kunci pencarian, terapkan filter
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('no_hp', 'like', "%{$search}%");
+            });
+        }
+
+        // Lakukan paginasi (misal: 10 per halaman) dan sertakan query string
+        // pada link paginasi agar filter tetap aktif
+        $admins = $query->latest()->paginate(10)->appends($request->query());
+
+        // Kirim data ke view
+        return view('admin.kelola_admin.index', compact('admins', 'search'));
     }
 
     /**

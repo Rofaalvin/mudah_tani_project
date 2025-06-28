@@ -84,9 +84,11 @@ class PenjualanController extends Controller
 
     public function store(Request $request)
     {
+        // Validasi input, termasuk data diskon baru
         $request->validate([
-            'total' => 'required|numeric|min:0',
             'kode_trx_jual' => 'required|string',
+            'diskon' => 'required|numeric|min:0',
+            'total_final' => 'required|numeric|min:0',
         ]);
 
         $kodeTransaksi = $request->input('kode_trx_jual');
@@ -101,21 +103,28 @@ class PenjualanController extends Controller
             return redirect()->back()->with('error', 'Tidak ada item dalam transaksi.');
         }
 
-        // Hitung total transaksi
-        $totalTransaksi = 0;
+        // Hitung ulang subtotal dari session (lebih aman daripada dari client)
+        $subtotal = 0;
         foreach ($items as $item) {
-            $totalTransaksi += $item['harga_satuan'] * $item['jumlah'];
+            $subtotal += $item['harga_satuan'] * $item['jumlah'];
         }
 
-        // Simpan ke tabel penjualan (hanya data transaksi)
+        // Ambil nilai diskon dan total final dari request
+        $diskon = $request->input('diskon');
+        $totalFinal = $request->input('total_final');
+
+        // Simpan ke tabel penjualan (termasuk data baru)
         $penjualan = Penjualan::create([
             'kode_trx_jual' => $kodeTransaksi,
             'id_pembeli' => $idPembeli,
-            'total' => $totalTransaksi,
+            'total' => $subtotal, // Menyimpan subtotal sebelum diskon
+            'diskon' => $diskon, // Menyimpan persentase diskon
+            'total_final' => $totalFinal, // Menyimpan total setelah diskon
             'tanggal' => now(),
+            'status' => 'paid',
         ]);
 
-        // Simpan setiap item ke tabel penjualan_items
+        // Simpan setiap item ke tabel penjualan_items (tidak ada perubahan di sini)
         foreach ($items as $item) {
             $penjualan->items()->create([
                 'id_produk' => $item['id_produk'],
@@ -133,7 +142,7 @@ class PenjualanController extends Controller
             }
         }
 
-        session()->forget(['cart_penjualan', 'id_pembeli', 'selected_pembeli']);
+        session()->forget(['cart_penjualan', 'id_pembeli']);
 
         return redirect()
             ->route('penjualan.index')
@@ -162,11 +171,37 @@ class PenjualanController extends Controller
         return redirect()->back();
     }
 
-    public function dataPenjualan()
+    public function dataPenjualan(Request $request)
     {
-        $penjualans = Penjualan::with(['user', 'items'])->latest()->get();
+        // Ambil kata kunci pencarian dari request
+        $search = $request->input('search');
 
-        return view('penjual.data_jual.index', compact('penjualans'));
+        // Mulai query dengan relasi yang dibutuhkan dan urutkan dari yang terbaru
+        $query = Penjualan::with(['user', 'items'])->latest();
+
+        // Jika ada input pencarian, tambahkan kondisi filter
+        if ($search) {
+            // Kelompokkan kondisi agar pencarian OR berjalan dengan benar
+            $query->where(function ($q) use ($search) {
+                // 1. Cari di kolom kode_trx_jual pada tabel penjualan
+                $q->where('kode_trx_jual', 'like', "%{$search}%")
+                    // 2. Cari berdasarkan nama pada relasi 'user' (pembeli)
+                    ->orWhereHas('user', function ($subQuery) use ($search) {
+                        $subQuery->where('name', 'like', "%{$search}%");
+                    })
+                    // 3. Cari berdasarkan nama produk pada relasi 'items'
+                    ->orWhereHas('items', function ($subQuery) use ($search) {
+                        $subQuery->where('nama_produk', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // Ganti get() dengan paginate() untuk efisiensi
+        // dan sertakan query string pada link paginasi
+        $penjualans = $query->paginate(10)->appends($request->query());
+
+        // Kirim data ke view
+        return view('penjual.data_jual.index', compact('penjualans', 'search'));
     }
 
     public function show($id)

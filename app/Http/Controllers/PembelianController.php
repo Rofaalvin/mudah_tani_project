@@ -76,14 +76,20 @@ class PembelianController extends Controller
 
     public function storeFinal(Request $request)
     {
+        // Validasi input baru
         $request->validate([
-            'total' => 'required|numeric|min:0',
             'kode_trx_beli' => 'required|string',
+            'diskon' => 'required|numeric|min:0',
+            'total_final' => 'required|numeric|min:0',
         ]);
 
         $kodeTransaksi = $request->input('kode_trx_beli');
         $items = session()->get('cart_pembelian', []);
         $idSupplyer = session('id_supplyer');
+
+        // Ambil data diskon dan total final dari request
+        $diskon = $request->input('diskon');
+        $totalFinal = $request->input('total_final');
 
         if (!$idSupplyer) {
             return redirect()->back()->with('error', 'Supplier belum dipilih.');
@@ -101,8 +107,10 @@ class PembelianController extends Controller
                 'nama_barang' => $item['nama_produk'],
                 'quantity' => $item['jumlah'],
                 'harga' => $item['harga_satuan'],
-                'total' => $item['harga_satuan'] * $item['jumlah'],
+                'total' => $item['harga_satuan'] * $item['jumlah'], // Ini adalah subtotal per item
                 'tanggal' => now(),
+                'diskon' => $diskon,
+                'total_final' => $totalFinal,
             ]);
 
             $produk = Produk::find($item['id_produk']);
@@ -174,12 +182,35 @@ class PembelianController extends Controller
         return redirect()->route('data_beli.index');
     }
 
-    public function dataPembelian()
+    /**
+     * Menampilkan data pembelian dengan fungsionalitas pencarian.
+     */
+    public function dataPembelian(Request $request)
     {
-        // Ambil semua data pembelian beserta relasi supplyer
-        $pembelianItems = Pembelian::with('supplyer')->latest()->get();
+        // Ambil kata kunci pencarian dari request
+        $search = $request->input('search');
 
-        return view('penjual.data_beli.index', compact('pembelianItems'));
+        // Mulai query dengan relasi 'supplyer' dan urutkan dari yang terbaru
+        $query = Pembelian::with('supplyer')->latest('tanggal');
+
+        // Jika ada input pencarian, tambahkan kondisi filter
+        if ($search) {
+            // Kelompokkan kondisi agar tidak bentrok dengan query lain
+            $query->where(function ($q) use ($search) {
+                $q->where('kode_trx_beli', 'like', "%{$search}%")
+                    ->orWhere('nama_barang', 'like', "%{$search}%")
+                    // Cari juga berdasarkan nama supplier pada tabel relasi
+                    ->orWhereHas('supplyer', function ($subQuery) use ($search) {
+                        $subQuery->where('nama_supplyer', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // PERBAIKAN: Hanya gunakan ->get() dan ->groupBy(). Hapus baris paginasi.
+        $pembelianItems = $query->get()->groupBy('kode_trx_beli');
+
+        // Kirim data yang sudah dikelompokkan ke view
+        return view('penjual.data_beli.index', compact('pembelianItems', 'search'));
     }
 
     // public function dataBeli()

@@ -14,10 +14,30 @@ class PenjualController extends Controller
     /**
      * Menampilkan daftar semua penjual.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $penjuals = User::where('role', 'penjual')->get();
-        return view('admin.kelola_penjual.index', compact('penjuals'));
+        // Ambil kata kunci pencarian dari request
+        $search = $request->input('search');
+
+        // Mulai query untuk user dengan role 'penjual'
+        $query = User::where('role', 'penjual');
+
+        // Jika ada kata kunci pencarian, terapkan filter
+        if ($search) {
+            // Kelompokkan kondisi where untuk pencarian yang benar
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('no_hp', 'like', "%{$search}%");
+            });
+        }
+
+        // Ambil data dengan paginasi (misal: 10 per halaman)
+        // dan sertakan query string pada link paginasi agar filter tetap aktif
+        $penjuals = $query->latest()->paginate(10)->appends($request->query());
+
+        // Kirim data ke view, termasuk variabel search
+        return view('admin.kelola_penjual.index', compact('penjuals', 'search'));
     }
 
     /**

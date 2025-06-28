@@ -10,6 +10,10 @@ class CheckOutController extends Controller
 {
     public function process(Request $request)
     {
+        $request->validate([
+            'delivery_method' => 'required|in:pickup,delivery',
+            'shipping_address' => 'required_if:delivery_method,delivery|string|max:1000',
+        ]);
         $today = now()->toDateString();
 
         $lastKodeHariIni = Penjualan::whereDate('tanggal', $today)
@@ -31,32 +35,42 @@ class CheckOutController extends Controller
         }
 
         // Hitung total dan siapkan data item
-        $total_amount = 0;
+        $subtotal = 0;
         $items = [];
         foreach ($cart as $id => $item) {
             $harga = (int) $item['harga'];
             $quantity = (int) $item['quantity'];
-            $subtotal = $harga * $quantity;
-            $total_amount += $subtotal;
+            $item_subtotal = $harga * $quantity;
+            $subtotal += $item_subtotal;
             $items[] = [
                 'id_produk' => $id,
                 'nama_produk' => $item['nama_produk'],
                 'harga' => $harga,
                 'quantity' => $quantity,
-                'subtotal' => $subtotal,
+                'subtotal' => $item_subtotal,
             ];
         }
+
+        // Hitung total dengan biaya pengiriman jika ada
+        $deliveryMethod = $request->input('delivery_method');
+        $shippingCost = ($deliveryMethod === 'delivery') ? 12000 : 0;
+
+        // Total keseluruhan
+        $finalTotal = $subtotal + $shippingCost;
 
         // Simpan transaksi ke tabel Penjualan
         $transaction = Penjualan::create([
             'kode_trx_jual' => $lastKodeHariIni,
             'id_pembeli' => auth()->id(),
-            'total' => $total_amount,
+            'total' => $finalTotal,
             'tanggal' => now()->toDateString(),
             'status' => 'pending',
+            'delivery_method' => $deliveryMethod,
+            'shipping_cost' => $shippingCost,
+            'shipping_address' => $request->input('shipping_address'),
         ]);
 
-        // Simpan detail item ke tabel PenjualanItem (pastikan model & relasi sudah ada)
+        // Simpan detail item ke tabel PenjualanItem
         foreach ($items as $item) {
             $transaction->items()->create([
                 'id_produk' => $item['id_produk'],
@@ -86,7 +100,7 @@ class CheckOutController extends Controller
         $params = array(
             'transaction_details' => array(
                 'order_id' => $lastKodeHariIni,
-                'gross_amount' => $total_amount,
+                'gross_amount' => $finalTotal,
             )
         );
 
