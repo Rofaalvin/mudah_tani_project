@@ -219,7 +219,7 @@
                                         <td class="border border-blue-500 px-2 py-1 text-center font-mono">Rp
                                             {{ number_format($harga_akhir, 0, ',', '.') }}</td>
                                         <td class="border border-blue-500 px-2 py-1 text-center">
-                                            <form action="{{ route('pembelian.removeItem', $item['id_produk']) }}"
+                                            <form action="{{ route('penjualan.destroy', $item['id_produk']) }}"
                                                 method="POST">
                                                 @csrf
                                                 @method('DELETE')

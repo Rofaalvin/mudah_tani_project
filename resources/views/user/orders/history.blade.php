@@ -36,8 +36,11 @@
                             <label for="search" class="block text-sm font-medium text-gray-700">Search by Code</label>
                             <div class="mt-1 relative rounded-md shadow-sm">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd"
+                                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                            clip-rule="evenodd" />
                                     </svg>
                                 </div>
                                 <input type="text" name="search" id="search"
@@ -69,7 +72,8 @@
                         </div>
                     </div>
                     <div class="mt-4 flex items-center justify-end space-x-3">
-                         <a href="{{ route('my.orders.history') }}" class="text-sm font-medium text-gray-600 hover:text-indigo-600">Reset Filters</a>
+                        <a href="{{ route('my.orders.history') }}"
+                            class="text-sm font-medium text-gray-600 hover:text-indigo-600">Reset Filters</a>
                         <button type="submit"
                             class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             Apply Filters
@@ -174,7 +178,8 @@
                                             @if ($order->status == 'paid')
                                                 <span
                                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <svg class="w-4 h-4 mr-1" fill="currentColor"
+                                                        viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd"
                                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                                             clip-rule="evenodd"></path>
@@ -184,7 +189,8 @@
                                             @elseif($order->status == 'cancelled')
                                                 <span
                                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <svg class="w-4 h-4 mr-1" fill="currentColor"
+                                                        viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd"
                                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                                                             clip-rule="evenodd"></path>
@@ -309,6 +315,89 @@
                                                 @endforeach
                                             </div>
                                         </div>
+                                        <!-- Order & Shipping Summary -->
+                                        <div>
+                                            <h6 class="font-semibold text-gray-900 mb-3">Order & Shipping Summary</h6>
+                                            <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                                                {{-- ... Ringkasan pesanan (tanggal, kode, status bayar) ... --}}
+                                                <div class="flex justify-between text-sm">
+                                                    <span class="text-gray-600">Delivery Method:</span>
+                                                    <span
+                                                        class="font-medium capitalize">{{ $order->delivery_method }}</span>
+                                                </div>
+
+                                                {{-- TAMPILKAN STATUS PENGIRIMAN JIKA DELIVERY --}}
+                                                @if ($order->delivery_method == 'delivery')
+                                                    <div class="border-t border-gray-200 pt-3">
+                                                        <p class="text-sm font-medium text-gray-800 mb-2">Shipping
+                                                            Status:</p>
+                                                        @php
+                                                            // Logika untuk menentukan langkah mana yang aktif
+                                                            $isProcessing = in_array($order->shipping_status, [
+                                                                'processing',
+                                                                'shipped',
+                                                                'delivered',
+                                                            ]);
+                                                            $isShipped = in_array($order->shipping_status, [
+                                                                'shipped',
+                                                                'delivered',
+                                                            ]);
+                                                            $isDelivered = $order->shipping_status == 'delivered';
+                                                        @endphp
+                                                        <div class="flex items-center space-x-2 text-xs">
+                                                            <!-- Step 1: Processing -->
+                                                            <div class="flex flex-col items-center">
+                                                                <div
+                                                                    class="w-6 h-6 rounded-full flex items-center justify-center {{ $isProcessing ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500' }}">
+                                                                    <svg class="w-4 h-4" fill="currentColor"
+                                                                        viewBox="0 0 20 20">
+                                                                        <path
+                                                                            d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm1-4a1 1 0 100 2 1 1 0 000-2z" />
+                                                                    </svg>
+                                                                </div>
+                                                                <span
+                                                                    class="mt-1 {{ $isProcessing ? 'font-semibold text-blue-600' : 'text-gray-500' }}">Processing</span>
+                                                            </div>
+                                                            <!-- Connector -->
+                                                            <div
+                                                                class="flex-1 h-0.5 {{ $isShipped ? 'bg-blue-600' : 'bg-gray-200' }}">
+                                                            </div>
+                                                            <!-- Step 2: Shipped -->
+                                                            <div class="flex flex-col items-center">
+                                                                <div
+                                                                    class="w-6 h-6 rounded-full flex items-center justify-center {{ $isShipped ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500' }}">
+                                                                    <svg class="w-4 h-4" fill="currentColor"
+                                                                        viewBox="0 0 20 20">
+                                                                        <path
+                                                                            d="M8 16.5a.5.5 0 01-.5-.5V9.707l-1.146 1.147a.5.5 0 01-.708-.708l2-2a.5.5 0 01.708 0l2 2a.5.5 0 01-.708.708L8.5 9.707V16.5a.5.5 0 01-.5.5z M4.5 9.5a.5.5 0 01-.5-.5v-2a.5.5 0 01.5-.5h7a.5.5 0 01.5.5v2a.5.5 0 01-.5.5h-7z" />
+                                                                    </svg>
+                                                                </div>
+                                                                <span
+                                                                    class="mt-1 {{ $isShipped ? 'font-semibold text-blue-600' : 'text-gray-500' }}">Shipped</span>
+                                                            </div>
+                                                            <!-- Connector -->
+                                                            <div
+                                                                class="flex-1 h-0.5 {{ $isDelivered ? 'bg-blue-600' : 'bg-gray-200' }}">
+                                                            </div>
+                                                            <!-- Step 3: Delivered -->
+                                                            <div class="flex flex-col items-center">
+                                                                <div
+                                                                    class="w-6 h-6 rounded-full flex items-center justify-center {{ $isDelivered ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-500' }}">
+                                                                    <svg class="w-4 h-4" fill="currentColor"
+                                                                        viewBox="0 0 20 20">
+                                                                        <path fill-rule="evenodd"
+                                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                                            clip-rule="evenodd" />
+                                                                    </svg>
+                                                                </div>
+                                                                <span
+                                                                    class="mt-1 {{ $isDelivered ? 'font-semibold text-green-600' : 'text-gray-500' }}">Delivered</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
 
                                         <!-- Order Summary -->
                                         <div>
@@ -349,18 +438,22 @@
                     <div class="mb-6">
                         <svg class="w-24 h-24 mx-auto text-gray-300" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-900 mb-2">No Orders Found</h3>
                     <p class="text-gray-500 mb-8 max-w-md mx-auto">
-                        We couldn't find any orders matching your search criteria. Try adjusting your filters or search term.
+                        We couldn't find any orders matching your search criteria. Try adjusting your filters or search
+                        term.
                     </p>
                     <a href="{{ route('my.orders.history') }}"
                         class="inline-flex items-center bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-xl border border-gray-300 shadow-sm hover:shadow-md transition-all duration-200">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5"></path>
-                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12A8 8 0 0112 20a8 8 0 01-8-8"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 12A8 8 0 0112 20a8 8 0 01-8-8"></path>
                         </svg>
                         Reset and View All Orders
                     </a>

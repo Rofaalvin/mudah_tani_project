@@ -3,10 +3,10 @@
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1>Data Pembelian</h1>
-        <a href="{{ route('admin.data_pembelian.seeder') }}" class="btn btn-primary"
+        {{-- <a href="{{ route('admin.data_pembelian.seeder') }}" class="btn btn-primary"
             onclick="return confirm('Yakin ingin menjalankan ulang seeder? Data akan di-reset!')">
             Refresh!
-        </a>
+        </a> --}}
     </div>
 
     <!-- Form Filter Bulan -->

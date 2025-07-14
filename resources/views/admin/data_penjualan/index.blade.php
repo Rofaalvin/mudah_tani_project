@@ -2,9 +2,7 @@
 
 @section('content')
     <div class="container">
-        <h1 class="mb-4">Data Penjualan</h1>
-
-        <a href="{{ route('data_penjualan.create') }}" class="btn btn-primary mb-3">Tambah Data</a>
+        <h1 class="mb-4">Data Penjualan (Detail Items)</h1>
 
         <!-- Form Filter -->
         <div class="card shadow-sm mb-3">
@@ -50,56 +48,99 @@
         @if ($dataPenjualans->isEmpty())
             <div class="alert alert-info">Belum ada data penjualan.</div>
         @else
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Kode Transaksi</th>
-                        <th>Nama Pembeli</th>
-                        <th>Nama Barang</th>
-                        <th>Qty</th>
-                        <th>Harga</th>
-                        <th>Total</th>
-                        <th>Tanggal</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($dataPenjualans as $penjualan)
+            <!-- Summary Card -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Items</h5>
+                            <h3>{{ $dataPenjualans->total() }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Quantity</h5>
+                            <h3>{{ $dataPenjualans->sum('quantity') }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Nilai</h5>
+                            <h3>Rp{{ number_format($dataPenjualans->sum('total'), 0, ',', '.') }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
                         <tr>
-                            <td>{{ $penjualan->id }}</td>
-                            <td>{{ $penjualan->kode_trx_jual }}</td>
-                            <td>{{ $penjualan->user->name ?? 'Tidak diketahui' }}</td>
-                            <td>{{ $penjualan->nama_barang }}</td>
-                            <td>{{ $penjualan->quantity }}</td>
-                            <td>Rp{{ number_format($penjualan->harga, 0, ',', '.') }}</td>
-                            <td>Rp{{ number_format($penjualan->total, 0, ',', '.') }}</td>
-                            <td>{{ $penjualan->tanggal }}</td>
-                            <td>
-                                <a href="{{ route('data_penjualan.edit', $penjualan->id) }}"
-                                    class="btn btn-warning btn-sm">Edit</a>
-                                <form action="{{ route('data_penjualan.destroy', $penjualan->id) }}" method="POST"
-                                    style="display:inline-block;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" onclick="return confirm('Yakin ingin menghapus?')"
-                                        class="btn btn-danger btn-sm">Hapus</button>
-                                </form>
-                            </td>
+                            <th>ID</th>
+                            <th>Kode Transaksi</th>
+                            <th>Nama Pembeli</th>
+                            <th>Nama Barang</th>
+                            <th>Qty</th>
+                            <th>Harga Satuan</th>
+                            <th>Subtotal</th>
+                            <th>Tanggal</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="text-center">
-                                Tidak ada data penjualan yang cocok dengan filter yang dipilih.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @forelse($dataPenjualans as $item)
+                            <tr>
+                                <td>{{ $item->id }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ $item->kode_trx_jual }}</span>
+                                </td>
+                                <td>{{ $item->nama_pembeli }}</td>
+                                <td>
+                                    <strong>{{ $item->nama_barang }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ $item->quantity }}</span>
+                                </td>
+                                <td>Rp{{ number_format($item->harga, 0, ',', '.') }}</td>
+                                <td>
+                                    <strong>Rp{{ number_format($item->total, 0, ',', '.') }}</strong>
+                                </td>
+                                <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y H:i') }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    <div class="py-4">
+                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Tidak ada data penjualan yang cocok dengan filter yang
+                                            dipilih.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
             <!-- Link Paginasi -->
             <div class="d-flex justify-content-center">
                 {{ $dataPenjualans->links() }}
             </div>
+
+            <!-- Export Options -->
+            {{-- <div class="mt-3">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-success">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                    <button type="button" class="btn btn-outline-danger">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                </div>
+            </div> --}}
         @endif
     </div>
 @endsection
@@ -119,4 +160,22 @@
             });
         });
     </script>
+@endpush
+
+@push('styles')
+    <style>
+        .table-responsive {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .badge {
+            font-size: 0.85em;
+        }
+
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid rgba(0, 0, 0, 0.125);
+        }
+    </style>
 @endpush

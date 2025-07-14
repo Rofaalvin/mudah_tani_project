@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Models\Produk;
 use App\Models\Supplyer;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class PenjualanController extends Controller
@@ -173,35 +175,94 @@ class PenjualanController extends Controller
 
     public function dataPenjualan(Request $request)
     {
+        // 1. Tentukan rentang waktu: 6 bulan dari sekarang hingga 5 bulan ke belakang.
+        $endDate = Carbon::now();
+        $startDate = Carbon::now()->copy()->subMonths(5)->startOfMonth();
+
+        // 2. Ambil semua data penjualan dalam rentang waktu tersebut dalam satu query.
+        $salesData = Penjualan::select(
+            DB::raw('YEAR(tanggal) as year, MONTH(tanggal) as month'),
+            DB::raw('SUM(total_final) as total_bulanan')
+        )
+            ->whereBetween('tanggal', [$startDate, $endDate])
+            ->groupBy('year', 'month')
+            ->get()
+            // Jadikan hasil query mudah dicari dengan format 'tahun-bulan' sebagai key.
+            ->keyBy(function ($item) {
+                return $item->year . '-' . $item->month;
+            });
+
+        // 3. Siapkan array kosong untuk label dan data chart.
+        $chartLabels = [];
+        $chartData = [];
+
+        // 4. Lakukan perulangan mundur dari 5 bulan lalu hingga bulan ini (total 6 iterasi).
+        //    Ini memastikan bulan saat ini selalu menjadi item terakhir.
+        for ($i = 5; $i >= 0; $i--) {
+            // Dapatkan tanggal untuk iterasi saat ini.
+            $date = Carbon::now()->subMonths($i);
+            
+            // Format label (contoh: "Jul 2025") dan tambahkan ke array label.
+            $chartLabels[] = $date->isoFormat('MMM YYYY');
+
+            // Buat kunci pencarian 'tahun-bulan' (contoh: '2025-7').
+            $key = $date->year . '-' . $date->month;
+
+            // Cek apakah ada data penjualan untuk bulan ini di hasil query.
+            if (isset($salesData[$key])) {
+                // Jika ada, tambahkan totalnya ke array data.
+                $chartData[] = (float) $salesData[$key]->total_bulanan;
+            } else {
+                // Jika tidak ada, tambahkan 0.
+                $chartData[] = 0;
+            }
+        }
+
         // Ambil kata kunci pencarian dari request
         $search = $request->input('search');
 
-        // Mulai query dengan relasi yang dibutuhkan dan urutkan dari yang terbaru
-        $query = Penjualan::with(['user', 'items'])->latest();
+        // Query untuk menampilkan data penjualan
+        $query = Penjualan::with(['user', 'items'])->latest('tanggal');
 
-        // Jika ada input pencarian, tambahkan kondisi filter
+        // Filter berdasarkan pencarian jika ada
         if ($search) {
-            // Kelompokkan kondisi agar pencarian OR berjalan dengan benar
             $query->where(function ($q) use ($search) {
-                // 1. Cari di kolom kode_trx_jual pada tabel penjualan
                 $q->where('kode_trx_jual', 'like', "%{$search}%")
-                    // 2. Cari berdasarkan nama pada relasi 'user' (pembeli)
                     ->orWhereHas('user', function ($subQuery) use ($search) {
                         $subQuery->where('name', 'like', "%{$search}%");
                     })
-                    // 3. Cari berdasarkan nama produk pada relasi 'items'
                     ->orWhereHas('items', function ($subQuery) use ($search) {
                         $subQuery->where('nama_produk', 'like', "%{$search}%");
                     });
             });
         }
 
-        // Ganti get() dengan paginate() untuk efisiensi
-        // dan sertakan query string pada link paginasi
+        // Paginate hasil
         $penjualans = $query->paginate(10)->appends($request->query());
 
+        // dd($chartLabels, $chartData);
         // Kirim data ke view
-        return view('penjual.data_jual.index', compact('penjualans', 'search'));
+        return view('penjual.data_jual.index', compact(
+            'penjualans',
+            'search',
+            'chartLabels',
+            'chartData'
+        ));
+    }
+
+    public function updateStatus(Request $request, Penjualan $penjualan)
+    {
+        // Validasi input
+        $request->validate([
+            'shipping_status' => 'required|string|in:processing,shipped,delivered,cancelled',
+        ]);
+
+        // Update status pengiriman pada model Penjualan
+        $penjualan->shipping_status = $request->input('shipping_status');
+        $penjualan->save();
+
+        // Redirect kembali ke halaman daftar penjualan dengan pesan sukses
+        return redirect()->route('data_jual.index')->with('success', 'Status pengiriman berhasil diperbarui.');
     }
 
     public function show($id)
@@ -233,9 +294,14 @@ class PenjualanController extends Controller
 
     public function destroy($id)
     {
-        $penjualan = Penjualan::findOrFail($id);
-        $penjualan->delete();
+        $cart = session()->get('cart_penjualan', []);
 
-        return redirect()->route('penjualan.index');
+        // Hapus item dengan ID produk tertentu dari session
+        if (isset($cart[$id])) {
+            unset($cart[$id]);
+            session(['cart_penjualan' => $cart]);
+        }
+
+        return redirect()->back()->with('success', 'Item berhasil dihapus.');
     }
 }

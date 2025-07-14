@@ -26,7 +26,8 @@ class Penjualan extends Model
         'status',
         'delivery_method',
         'shipping_cost',
-        'shipping_address'
+        'shipping_address',
+        'shipping_status',
     ];
 
     // Relasi dengan Pembeli

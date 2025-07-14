@@ -8,6 +8,16 @@
         <a href="{{ url('/data_jual') }}" class="btn-green">Lihat Data Penjualan</a>
     </div>
 
+    <!-- GRAFIK PENJUALAN 6 BULAN TERAKHIR -->
+    <div class="mb-6 bg-white p-4 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold mb-2 text-gray-700">Grafik Penjualan 6 Bulan Terakhir</h3>
+        {{-- Pastikan canvas memiliki tinggi yang cukup --}}
+        <div style="height: 350px;">
+            <canvas id="grafikPenjualanBulanan"></canvas>
+        </div>
+    </div>
+    <!-- AKHIR GRAFIK -->
+
     <div class="mb-4">
         <form action="{{ route('data_jual.index') }}" method="GET" class="flex items-center">
             <input type="search" name="search"
@@ -18,8 +28,10 @@
         </form>
     </div>
 
+    {{-- Sisa konten Anda (tabel, dll.) tetap sama --}}
     @if (count($penjualans) > 0)
         @forelse($penjualans as $penjualan)
+            {{-- ... Konten forelse Anda di sini ... --}}
             <div class="mb-6 border border-gray-300 rounded-lg overflow-hidden shadow-sm bg-white">
                 <div class="px-4 py-2 bg-gray-100 flex flex-col md:flex-row md:items-center md:justify-between">
                     <div>
@@ -30,9 +42,40 @@
                         <p><span class="font-semibold w-28 inline-block">Metode</span>:
                             <span
                                 class="font-semibold {{ $penjualan->delivery_method == 'delivery' ? 'text-blue-600' : 'text-purple-600' }}">
-                                {{ $penjualan->delivery_method == 'pickup' ? 'Diantar' : 'Diambil di Toko' }}
+                                {{ $penjualan->delivery_method == 'pickup' ? 'Diambil di Toko' : 'Diantar' }}
                             </span>
                         </p>
+                        {{-- Tampilkan info pengiriman HANYA jika delivery --}}
+                        @if ($penjualan->delivery_method == 'delivery')
+                            <div class="mt-2 text-sm">
+                                <p class="font-semibold">Alamat Pengiriman:</p>
+                                <p class="text-gray-700 whitespace-pre-wrap">{{ $penjualan->shipping_address }}</p>
+
+                                <div class="mt-2">
+                                    <p class="font-semibold">Status Pengiriman:</p>
+                                    @php
+                                        $statusClass = '';
+                                        switch ($penjualan->shipping_status) {
+                                            case 'shipped':
+                                                $statusClass = 'bg-blue-100 text-blue-800';
+                                                break;
+                                            case 'delivered':
+                                                $statusClass = 'bg-green-100 text-green-800';
+                                                break;
+                                            case 'cancelled':
+                                                $statusClass = 'bg-red-100 text-red-800';
+                                                break;
+                                            default:
+                                                // processing
+                                                $statusClass = 'bg-yellow-100 text-yellow-800';
+                                        }
+                                    @endphp
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusClass }}">
+                                        {{ ucfirst($penjualan->shipping_status) }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                     @if ($penjualan->delivery_method == 'delivery' && !empty($penjualan->shipping_address))
                         <div class="px-4 py-3 border-t border-gray-200">
@@ -58,6 +101,35 @@
                             <span class="text-green-700">Rp
                                 {{ number_format($penjualan->total_final, 0, ',', '.') }}</span>
                         </div>
+                        {{-- Form Edit Status HANYA jika delivery --}}
+                        @if ($penjualan->delivery_method == 'delivery')
+                            <form action="{{ route('data_jual.updateStatus', $penjualan) }}" method="POST"
+                                class="mt-3 border-t pt-3">
+                                @csrf
+                                @method('PATCH')
+                                <label for="shipping_status-{{ $penjualan->id }}"
+                                    class="text-xs font-semibold text-gray-600">Update Status Pengiriman:</label>
+                                <div class="flex items-center mt-1">
+                                    <select name="shipping_status" id="shipping_status-{{ $penjualan->id }}"
+                                        class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <option value="processing"
+                                            {{ $penjualan->shipping_status == 'processing' ? 'selected' : '' }}>Processing
+                                        </option>
+                                        <option value="shipped"
+                                            {{ $penjualan->shipping_status == 'shipped' ? 'selected' : '' }}>Shipped
+                                        </option>
+                                        <option value="delivered"
+                                            {{ $penjualan->shipping_status == 'delivered' ? 'selected' : '' }}>Delivered
+                                        </option>
+                                        <option value="cancelled"
+                                            {{ $penjualan->shipping_status == 'cancelled' ? 'selected' : '' }}>Cancelled
+                                        </option>
+                                    </select>
+                                    <button type="submit"
+                                        class="ml-2 bg-indigo-600 text-white px-3 py-1 rounded-md text-sm hover:bg-indigo-700">Update</button>
+                                </div>
+                            </form>
+                        @endif
                     </div>
                 </div>
                 @if ($penjualan->items && count($penjualan->items) > 0)
@@ -130,3 +202,74 @@
         }
     </style>
 @endsection
+
+@push('scripts')
+    {{-- Cukup satu CDN yang andal --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('grafikPenjualanBulanan');
+            if (!canvas) {
+                console.error('Elemen canvas tidak ditemukan!');
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+
+            // Ambil data dari controller
+            const labels = @json($chartLabels ?? []);
+            const data = @json($chartData ?? []);
+
+            // Cek jika data kosong
+            if (labels.length === 0) {
+                ctx.font = '16px Arial';
+                ctx.fillStyle = '#6B7280';
+                ctx.textAlign = 'center';
+                ctx.fillText('Tidak ada data penjualan untuk ditampilkan dalam 6 bulan terakhir.', canvas.width / 2,
+                    50);
+                return;
+            }
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Penjualan Bulanan',
+                        data: data,
+                        backgroundColor: 'rgba(22, 163, 74, 0.5)',
+                        borderColor: 'rgba(22, 163, 74, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Penting agar chart mengisi div
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Total: Rp ' + new Intl.NumberFormat('id-ID').format(context
+                                        .parsed.y);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+@endpush

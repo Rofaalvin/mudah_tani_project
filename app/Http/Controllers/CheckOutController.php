@@ -23,7 +23,8 @@ class CheckOutController extends Controller
 
         if ($lastKodeHariIni) {
             $lastNumber = (int) substr($lastKodeHariIni->kode_trx_jual, -3); // Ambil 3 digit terakhir sebagai angka
-            $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT); // Tambahkan 1 dan format menjadi 3 digit
+            // edit ini untuk dpat melakukan test midtrans jika kode telah digunakan
+            $newNumber = str_pad($lastNumber + 5, 3, '0', STR_PAD_LEFT); // Tambahkan 1 dan format menjadi 3 digit
             $lastKodeHariIni = 'PB' . now()->format('Ymd') . $newNumber; // Gabungkan dengan tanggal
         } else {
             $lastKodeHariIni = 'PB' . now()->format('Ymd') . '001';
@@ -63,11 +64,13 @@ class CheckOutController extends Controller
             'kode_trx_jual' => $lastKodeHariIni,
             'id_pembeli' => auth()->id(),
             'total' => $finalTotal,
+            'total_final' => $finalTotal,
             'tanggal' => now()->toDateString(),
             'status' => 'pending',
             'delivery_method' => $deliveryMethod,
             'shipping_cost' => $shippingCost,
             'shipping_address' => $request->input('shipping_address'),
+            'shipping_status' => 'pending',
         ]);
 
         // Simpan detail item ke tabel PenjualanItem
@@ -134,7 +137,10 @@ class CheckOutController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $penjualan->update(['status' => 'paid']);
+        $penjualan->update([
+            'status' => 'paid',
+            'shipping_status' => 'processing',
+        ]);
 
         $transaction = Penjualan::with('items')
             ->where('id_pembeli', auth()->id())

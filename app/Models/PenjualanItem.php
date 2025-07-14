@@ -24,4 +24,9 @@ class PenjualanItem extends Model
     {
         return $this->belongsTo(Penjualan::class, 'penjualan_id');
     }
+
+    public function produk()
+    {
+        return $this->belongsTo(Produk::class, 'id_produk');
+    }
 }

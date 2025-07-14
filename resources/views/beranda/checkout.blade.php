@@ -231,12 +231,15 @@
                 const shippingCostDisplay = document.getElementById('shipping-cost-display');
                 const totalAmountDisplay = document.getElementById('total-amount-display');
                 const addressContainer = document.getElementById('shipping-address-container');
+                const addressTextarea = document.getElementById('shipping_address');
 
                 // Pastikan summaryContainer ditemukan sebelum melanjutkan
                 if (!summaryContainer) {
                     console.error('Order summary container not found!');
                     return;
                 }
+
+                const lastUsedAddress = @json($lastShippingAddress ?? null);
 
                 const shippingFee = 12000;
                 // Ambil subtotal dari data attribute
@@ -259,8 +262,12 @@
                     if (selectedMethod === 'delivery') {
                         currentShippingCost = shippingFee;
                         addressContainer.classList.remove('hidden');
+                        if (lastUsedAddress) {
+                            addressTextarea.value = lastUsedAddress;
+                        }
                     } else {
                         addressContainer.classList.add('hidden');
+                        addressTextarea.value = '';
                     }
 
                     const finalTotal = subtotal + currentShippingCost;

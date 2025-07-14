@@ -77,7 +77,7 @@
 
                                         <div class="mb-3">
                                             <label class="form-label">Nama</label>
-                                            <input type="text" class="form-control" name="nama_pembeli"
+                                            <input type="text" class="form-control" name="name"
                                                 value="{{ $pembeli->name }}" required>
                                         </div>
                                         <div class="mb-3">
@@ -141,7 +141,7 @@
                         @csrf
                         <div class="mb-3">
                             <label for="nama_pembeli" class="form-label">Nama</label>
-                            <input type="text" class="form-control" id="nama_pembeli" name="nama_pembeli" required>
+                            <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>

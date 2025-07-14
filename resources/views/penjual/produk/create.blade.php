@@ -31,9 +31,15 @@
             <input type="number" name="stok" class="form-control" required>
         </div>
 
+        {{-- Tambahkan field untuk deskripsi --}}
+        <div class="mb-3">
+            <label for="deskripsi" class="form-label">Deskripsi</label>
+            <textarea name="deskripsi" class="form-control" rows="4"></textarea>
+        </div>
+
         <div class="mb-3">
             <label for="gambar" class="form-label">Gambar Produk (opsional)</label>
-            <input type="file" name="gambar" class="form-control">
+            <input type="file" name="gambar" class="form-control" accept="image/*">
         </div>
 
         <button type="submit" class="btn btn-success">Simpan</button>

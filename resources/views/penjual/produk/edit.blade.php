@@ -33,6 +33,12 @@
             <input type="number" name="stok" class="form-control" value="{{ $produk->stok }}" required>
         </div>
 
+        {{-- Tambahkan field untuk deskripsi --}}
+        <div class="mb-3">
+            <label for="deskripsi" class="form-label">Deskripsi</label>
+            <textarea name="deskripsi" class="form-control" rows="4">{{ $produk->deskripsi }}</textarea>
+        </div>
+
         <div class="mb-3">
             <label for="gambar" class="form-label">Gambar Produk (kosongkan jika tidak diubah)</label>
             <input type="file" name="gambar" class="form-control">

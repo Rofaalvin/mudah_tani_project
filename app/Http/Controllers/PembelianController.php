@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Pembelian;
 use App\Models\Supplyer;
 use App\Models\Produk;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class PembelianController extends Controller
@@ -187,30 +189,72 @@ class PembelianController extends Controller
      */
     public function dataPembelian(Request $request)
     {
-        // Ambil kata kunci pencarian dari request
-        $search = $request->input('search');
+        // Set default filter bulan
+        $filterBulan = $request->input('filter_bulan', now()->format('Y-m'));
+        $search = $request->input('search', '');
 
-        // Mulai query dengan relasi 'supplyer' dan urutkan dari yang terbaru
-        $query = Pembelian::with('supplyer')->latest('tanggal');
+        // Query untuk grafik (TANPA filter bulan - menampilkan semua data)
+        $chartQuery = Pembelian::query();
 
-        // Jika ada input pencarian, tambahkan kondisi filter
-        if ($search) {
-            // Kelompokkan kondisi agar tidak bentrok dengan query lain
-            $query->where(function ($q) use ($search) {
-                $q->where('kode_trx_beli', 'like', "%{$search}%")
+        // Ambil data untuk grafik dari semua bulan (6 bulan terakhir sebagai contoh)
+        $grafikData = $chartQuery
+            ->select(
+                DB::raw('DATE(tanggal) as tanggal_pembelian'),
+                DB::raw('SUM(total_final) as total_harian')
+            )
+            ->where('tanggal', '>=', now()->subMonths(6)) // Ambil data 6 bulan terakhir
+            ->groupBy('tanggal_pembelian')
+            ->orderBy('tanggal_pembelian', 'asc')
+            ->get();
+
+        // Format data untuk Chart.js
+        $chartLabels = $grafikData->pluck('tanggal_pembelian')->map(function ($date) {
+            return Carbon::parse($date)->format('d M');
+        });
+        $chartData = $grafikData->pluck('total_harian');
+
+        // Query untuk tabel data (dengan filter bulan dan pencarian)
+        $tableQuery = Pembelian::query()->with('supplyer');
+
+        // Terapkan filter bulan untuk tabel
+        try {
+            $date = Carbon::createFromFormat('Y-m', $filterBulan);
+            $tableQuery->whereYear('tanggal', $date->year)
+                ->whereMonth('tanggal', $date->month);
+        } catch (\Exception $e) {
+            // Jika format tidak valid, gunakan bulan saat ini
+            $date = now();
+            $tableQuery->whereYear('tanggal', $date->year)
+                ->whereMonth('tanggal', $date->month);
+        }
+
+        // Terapkan pencarian jika ada
+        if (!empty($search)) {
+            $tableQuery->where(function ($query) use ($search) {
+                $query->where('kode_trx_beli', 'like', "%{$search}%")
                     ->orWhere('nama_barang', 'like', "%{$search}%")
-                    // Cari juga berdasarkan nama supplier pada tabel relasi
-                    ->orWhereHas('supplyer', function ($subQuery) use ($search) {
-                        $subQuery->where('nama_supplyer', 'like', "%{$search}%");
+                    ->orWhereHas('supplyer', function ($q) use ($search) {
+                        $q->where('nama_supplyer', 'like', "%{$search}%");
                     });
             });
         }
 
-        // PERBAIKAN: Hanya gunakan ->get() dan ->groupBy(). Hapus baris paginasi.
-        $pembelianItems = $query->get()->groupBy('kode_trx_beli');
+        // Ambil data dan kelompokkan berdasarkan kode transaksi
+        $pembelianData = $tableQuery->orderBy('tanggal', 'desc')
+            ->orderBy('kode_trx_beli', 'desc')
+            ->get();
 
-        // Kirim data yang sudah dikelompokkan ke view
-        return view('penjual.data_beli.index', compact('pembelianItems', 'search'));
+        // Kelompokkan data berdasarkan kode transaksi
+        $pembelianItems = $pembelianData->groupBy('kode_trx_beli');
+
+        // Kirim data ke view
+        return view('penjual.data_beli.index', compact(
+            'pembelianItems',
+            'filterBulan',
+            'search',
+            'chartLabels',
+            'chartData'
+        ));
     }
 
     // public function dataBeli()

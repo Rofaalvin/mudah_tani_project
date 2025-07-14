@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Penjualan;
+use App\Models\PenjualanItem;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,39 +15,50 @@ class DataPenjualanController extends Controller
      */
     public function index(Request $request)
     {
-        // Ambil parameter filter dari request
-        $filterUser = $request->input('filter_user');
-        $filterBulan = $request->input('filter_bulan');
+        // Ambil parameter filter
+    $filterUser = $request->get('filter_user');
+    $filterBulan = $request->get('filter_bulan');
 
-        // Mulai query untuk data penjualan dengan relasi 'user'
-        $query = Penjualan::with('user')->latest('tanggal');
+    // Query menggunakan Eloquent dengan eager loading
+    $query = PenjualanItem::with(['penjualan.user', 'produk'])
+        ->whereHas('penjualan')
+        ->orderBy('created_at', 'desc');
 
-        // Terapkan filter jika ada input 'filter_user'
-        if ($filterUser) {
-            $query->where('id_pembeli', $filterUser);
-        }
+    // Filter berdasarkan user/pembeli
+    if ($filterUser) {
+        $query->whereHas('penjualan', function ($q) use ($filterUser) {
+            $q->where('id_pembeli', $filterUser);
+        });
+    }
 
-        // Terapkan filter jika ada input 'filter_bulan'
-        if ($filterBulan) {
-            try {
-                // Ubah format YYYY-MM menjadi objek tanggal
-                $date = Carbon::createFromFormat('Y-m', $filterBulan);
-                // Filter berdasarkan tahun dan bulan
-                $query->whereYear('tanggal', $date->year)
-                    ->whereMonth('tanggal', $date->month);
-            } catch (\Exception $e) {
-                // Abaikan filter jika formatnya tidak valid
-            }
-        }
+    // Filter berdasarkan bulan
+    if ($filterBulan) {
+        $query->whereHas('penjualan', function ($q) use ($filterBulan) {
+            $q->whereRaw('DATE_FORMAT(tanggal, "%Y-%m") = ?', [$filterBulan]);
+        });
+    }
 
-        // Ambil semua data pengguna dengan role 'pembeli' untuk dropdown filter
-        $users = User::where('role', 'pembeli')->orderBy('name')->get();
+    // Paginasi
+    $dataPenjualans = $query->paginate(15)->appends($request->query());
 
-        // Lakukan paginasi dan sertakan parameter filter pada link halaman
-        $dataPenjualans = $query->paginate(15)->appends($request->query());
+    // Transform data untuk view
+    $dataPenjualans->getCollection()->transform(function ($item) {
+        return (object) [
+            'id' => $item->id,
+            'kode_trx_jual' => $item->penjualan->kode_trx_jual,
+            'nama_pembeli' => $item->penjualan->user->name ?? 'Tidak diketahui',
+            'nama_barang' => $item->nama_produk,
+            'quantity' => $item->quantity,
+            'harga' => $item->harga,
+            'total' => $item->subtotal,
+            'tanggal' => $item->penjualan->tanggal,
+        ];
+    });
 
-        // Kirim semua data yang diperlukan ke view
-        return view('admin.data_penjualan.index', compact('dataPenjualans', 'users', 'filterUser', 'filterBulan'));
+    // Ambil data users untuk dropdown filter
+    $users = User::where('role', 'pembeli')->get();
+
+    return view('admin.data_penjualan.index', compact('dataPenjualans', 'users', 'filterUser', 'filterBulan'));
     }
 
     public function create()

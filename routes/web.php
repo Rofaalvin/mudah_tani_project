@@ -80,13 +80,14 @@ Route::get('/penjualan/create', [PenjualanController::class, 'create'])->name('p
 
 // kode yang ditambahkan. silahkan untuk mengurutkan sendiri
 Route::post('/pembelian/set-supplyer', [PembelianController::class, 'setSupplyer'])->name('pembelian.setSupplyer');
-Route::get('/pembelian/remove/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
+Route::delete('/pembelian/remove/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
 Route::post('/penjualan/set-pembeli', [PenjualanController::class, 'setPembeli'])->name('penjualan.setPembeli');
-Route::get('/penjualan/remove/{id}', [PenjualanController::class, 'removeItem'])->name('penjualan.removeItem');
+// Route::delete('/penjualan/destroy/{id}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');
 Route::get('/penjualan/clear', [PenjualanController::class, 'clearAll'])->name('penjualan.clearAll');
 Route::post('/penjualan/add-item', [PenjualanController::class, 'addItem'])->name('penjualan.addItem');
 Route::get('/data_beli', [PembelianController::class, 'dataPembelian'])->name('data_beli.index');
 Route::get('/data_jual', [PenjualanController::class, 'dataPenjualan'])->name('data_jual.index');
+Route::patch('/data_jual/{penjualan}/update-status', [PenjualanController::class, 'updateStatus'])->name('data_jual.updateStatus');
 
 
 Route::post('/kelola_admin', [AdminController::class, 'store'])->name('admin.store');
@@ -128,8 +129,8 @@ Route::delete('/supplyer/{id}', [SupplyerController::class, 'destroy'])->name('s
 Route::delete('/kelola_pembeli/{id}', [PembeliController::class, 'destroy'])->name('pembeli.destroy');
 Route::delete('/data_penjualan/{id}', [DataPenjualanController::class, 'destroy'])->name('data_penjualan.destroy');
 // Route::delete('/pembelian/{kode_trx_beli}', [PembelianController::class, 'destroy'])->name('pembelian.destroy');
-Route::delete('/penjualan/{id}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');
-
+// Route::delete('/penjualan/{id}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');
+Route::delete('penjualan/{id}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');
 
 Route::get('/admin/seed-data-pembelian', [DataPembelianSeederController::class, 'runSeeder'])->name('admin.data_pembelian.seeder');
 Route::post('/pembelian/item', [PembelianController::class, 'storeItem'])->name('pembelian.storeItem');

@@ -27,6 +27,7 @@
                 <tr>
                     <th>ID Produk</th>
                     <th>Nama Produk</th>
+                    <th>Deskripsi</th>
                     <th>Harga</th>
                     <th>Stok</th>
                     <th>Gambar</th>
@@ -38,6 +39,8 @@
                     <tr>
                         <td>{{ $produk->id_produk }}</td>
                         <td>{{ $produk->nama_produk }}</td>
+                        {{-- Tampilkan deskripsi, batasi 50 karakter --}}
+                        <td>{{ Str::limit($produk->deskripsi, 50, '...') ?? '-' }}</td>
                         <td>Rp {{ number_format($produk->harga, 0, ',', '.') }}</td>
                         <td>{{ $produk->stok }}</td>
                         <td>
@@ -60,7 +63,8 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center">
+                        {{-- Update colspan menjadi 7 --}}
+                        <td colspan="7" class="text-center">
                             @if (!empty($search))
                                 Produk dengan kata kunci "{{ $search }}" tidak ditemukan.
                             @else

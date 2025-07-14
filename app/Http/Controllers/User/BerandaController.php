@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Penjualan;
 use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -21,16 +22,32 @@ class BerandaController extends Controller
         return view('beranda.index', compact('produks', 'cartCount'));
     }
 
-    public function products()
+    public function products(Request $request) // 2. Tambahkan Request $request
     {
-        $produks = Produk::all();
+        // 3. Ambil input pencarian dari request
+        $search = $request->input('search');
+
+        // 4. Mulai query builder, jangan langsung ambil semua data
+        $query = Produk::query();
+
+        // 5. Jika ada input pencarian, tambahkan kondisi 'where'
+        if ($search) {
+            // Cari produk yang namanya mengandung kata kunci pencarian
+            $query->where('nama_produk', 'like', "%{$search}%");
+        }
+
+        // 6. Eksekusi query untuk mendapatkan produk yang sudah difilter
+        $produks = $query->get();
+
+        // Logika untuk cart count tetap sama
         $cartCount = 0;
         if (session()->has('cart')) {
             $cart = session('cart');
             $cartCount = array_sum(array_column($cart, 'quantity'));
         }
-        // dd($cartCount);
-        return view('user.products.index', compact('produks', 'cartCount'));
+        
+        // 7. Kirim semua data yang dibutuhkan ke view, termasuk variabel $search
+        return view('user.products.index', compact('produks', 'cartCount', 'search'));
     }
 
     public function add(Request $request, $id)
@@ -142,6 +159,21 @@ class BerandaController extends Controller
 
     public function checkout()
     {
-        return view('beranda.checkout');
+        // Cari pesanan terakhir dari pengguna yang sedang login
+        // yang memiliki alamat pengiriman yang tidak kosong.
+        $lastOrderWithAddress = Penjualan::where('id_pembeli', auth()->id())
+            ->whereNotNull('shipping_address')
+            ->where('shipping_address', '!=', '')
+            ->latest() // Mengurutkan dari yang terbaru
+            ->first();
+
+        // Ambil alamatnya jika pesanan ditemukan, jika tidak, null.
+        $lastShippingAddress = $lastOrderWithAddress ? $lastOrderWithAddress->shipping_address : null;
+        
+        // Kirim data alamat terakhir ke view checkout
+        // Pastikan nama view sudah benar (misal: 'beranda.checkout')
+        return view('beranda.checkout', [
+            'lastShippingAddress' => $lastShippingAddress
+        ]);
     }
 }
