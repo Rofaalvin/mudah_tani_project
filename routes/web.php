@@ -142,5 +142,9 @@ Route::post('/pembelian/add-item', [PembelianController::class, 'addItem'])->nam
 // Route::delete('/pembelian/remove-item/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
 Route::post('/pembelian/tambah-item', [PembelianController::class, 'tambahItem'])->name('pembelian.tambahItem');
 
+Route::get('/my-orders/{order}/invoice/download', [OrderController::class, 'downloadInvoice'])
+    ->name('my.orders.invoice.download')
+    ->middleware('auth');
+
 
 require __DIR__ . '/auth.php';

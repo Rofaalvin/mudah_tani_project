@@ -245,7 +245,7 @@
 
                             <!-- Action Buttons -->
                             <div class="space-y-3">
-                                <button onclick="window.print()"
+                                <a href="{{ route('my.orders.invoice.download', $transaction) }}" target="_blank"
                                     class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -253,8 +253,8 @@
                                             d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
                                         </path>
                                     </svg>
-                                    Print Receipt
-                                </button>
+                                    Download / Print Invoice
+                                </a>
 
                                 <a href="{{ route('my.orders.index') }}"
                                     class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">

@@ -408,7 +408,7 @@
                 <h2>{{ $produk->nama_produk }}</h2>
                 <div class="price">Rp {{ number_format($produk->harga, 0, ',', '.') }}</div>
                 <div style="margin-bottom: 14px; color: #6c757d; font-size: 15px;">
-                    Stok: <span style="font-weight:600;">{{ $produk->stok }}</span>
+                    Stok: <span style="font-weight:600;">{{ $produk->harga }}</span>
                 </div>
                 <form action="{{ route('cart.add', ['id' => $produk->id_produk]) }}" method="POST">
                     @csrf

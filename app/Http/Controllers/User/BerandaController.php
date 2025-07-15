@@ -45,7 +45,7 @@ class BerandaController extends Controller
             $cart = session('cart');
             $cartCount = array_sum(array_column($cart, 'quantity'));
         }
-        
+
         // 7. Kirim semua data yang dibutuhkan ke view, termasuk variabel $search
         return view('user.products.index', compact('produks', 'cartCount', 'search'));
     }
@@ -55,6 +55,13 @@ class BerandaController extends Controller
         $produk = Produk::findOrFail($id);
 
         $cart = session()->get('cart', []);
+
+        $quantityInCart = $cart[$id]['quantity'] ?? 0;
+
+        if ($produk->stok <= $quantityInCart) {
+            // Jika stok sudah habis/limit, kembalikan dengan pesan error
+            return redirect()->back()->with('error', 'Tidak bisa menambah. Stok untuk ' . $produk->nama_produk . ' sudah mencapai batas.');
+        }
 
         if (isset($cart[$id])) {
             $cart[$id]['quantity']++;
@@ -158,31 +165,31 @@ class BerandaController extends Controller
     }
 
     public function checkout()
-{
-    // Dapatkan data pengguna yang sedang login
-    $user = auth()->user();
+    {
+        // Dapatkan data pengguna yang sedang login
+        $user = auth()->user();
 
-    // Prioritas 1: Cari alamat dari kolom 'address' di tabel 'users'.
-    // Menggunakan !empty() untuk memastikan kolom tidak null atau string kosong.
-    $shippingAddress = !empty($user->alamat) ? $user->alamat : null;
+        // Prioritas 1: Cari alamat dari kolom 'address' di tabel 'users'.
+        // Menggunakan !empty() untuk memastikan kolom tidak null atau string kosong.
+        $shippingAddress = !empty($user->alamat) ? $user->alamat : null;
 
-    // Prioritas 2: Jika alamat di tabel 'users' kosong,
-    // maka cari 'shipping_address' dari pesanan terakhir.
-    if (is_null($shippingAddress)) {
-        // Cari pesanan terakhir dari pengguna yang memiliki alamat pengiriman.
-        $lastOrderWithAddress = Penjualan::where('id_pembeli', $user->id)
-            ->whereNotNull('shipping_address')
-            ->where('shipping_address', '!=', '')
-            ->latest() // Mengurutkan dari yang terbaru
-            ->first();
+        // Prioritas 2: Jika alamat di tabel 'users' kosong,
+        // maka cari 'shipping_address' dari pesanan terakhir.
+        if (is_null($shippingAddress)) {
+            // Cari pesanan terakhir dari pengguna yang memiliki alamat pengiriman.
+            $lastOrderWithAddress = Penjualan::where('id_pembeli', $user->id)
+                ->whereNotNull('shipping_address')
+                ->where('shipping_address', '!=', '')
+                ->latest() // Mengurutkan dari yang terbaru
+                ->first();
 
-        // Ambil alamatnya jika pesanan ditemukan.
-        $shippingAddress = $lastOrderWithAddress ? $lastOrderWithAddress->shipping_address : null;
+            // Ambil alamatnya jika pesanan ditemukan.
+            $shippingAddress = $lastOrderWithAddress ? $lastOrderWithAddress->shipping_address : null;
+        }
+
+        // Kirim data alamat yang ditemukan ke view.
+        return view('beranda.checkout', [
+            'lastShippingAddress' => $shippingAddress
+        ]);
     }
-    
-    // Kirim data alamat yang ditemukan ke view.
-    return view('beranda.checkout', [
-        'lastShippingAddress' => $shippingAddress
-    ]);
-}
 }
