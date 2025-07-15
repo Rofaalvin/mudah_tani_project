@@ -8,12 +8,27 @@
         <a href="{{ url('/data_beli') }}" class="btn-green">Lihat Data Pembelian</a>
     </div>
 
-    {{-- Grafik Pembelian --}}
-    <div class="bg-white p-4 rounded-lg shadow-md mb-5">
-        <h3 class="text-lg font-semibold mb-2 text-gray-700">
-            Grafik Total Pembelian Harian (6 Bulan Terakhir)
-        </h3>
-        <canvas id="grafikPembelian" style="max-height: 400px;"></canvas>
+    {{-- Wadah untuk dua grafik --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+        {{-- Grafik 1: Pembelian Harian --}}
+        <div class="bg-white p-4 rounded-lg shadow-md flex flex-col">
+            <h3 class="text-lg font-semibold mb-2 text-gray-700">
+                Grafik Total Pembelian Harian (6 Bulan Terakhir)
+            </h3>
+            <div class="relative h-72"> {{-- h-72 adalah class Tailwind untuk height: 18rem / 288px --}}
+                <canvas id="grafikPembelian"></canvas> {{-- Hapus style dari canvas --}}
+            </div>
+        </div>
+
+        {{-- Grafik 2: Produk Terlaris --}}
+        <div class="bg-white p-4 rounded-lg shadow-md flex flex-col">
+            <h3 class="text-lg font-semibold mb-2 text-gray-700">
+                5 Produk Terlaris ({{ now()->format('F Y') }})
+            </h3>
+            <div class="relative h-72">
+                <canvas id="grafikProdukTerlaris"></canvas> {{-- Hapus style dari canvas --}}
+            </div>
+        </div>
     </div>
 
     {{-- Filter Bulan --}}
@@ -21,7 +36,8 @@
         <div class="flex flex-col sm:flex-row justify-between items-center">
             <form action="{{ route('data_beli.index') }}" method="GET" class="flex items-center space-x-2">
                 <label for="filter_bulan" class="text-sm font-medium text-gray-700">Filter Bulan:</label>
-                <input type="month" id="filter_bulan" name="filter_bulan" value="{{ $filterBulan ?? now()->format('Y-m') }}"
+                <input type="month" id="filter_bulan" name="filter_bulan"
+                    value="{{ $filterBulan ?? now()->format('Y-m') }}"
                     class="border border-gray-300 rounded-md px-2 py-1 text-sm">
                 <button type="submit"
                     class="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700">Filter</button>
@@ -80,14 +96,18 @@
 
                                 <td class="border px-2 py-1">{{ $item->nama_barang }}</td>
                                 <td class="border px-2 py-1 text-center">{{ $item->quantity }}</td>
-                                <td class="border px-2 py-1 text-right">Rp {{ number_format($item->harga, 0, ',', '.') }}</td>
-                                <td class="border px-2 py-1 text-right">Rp {{ number_format($item->total, 0, ',', '.') }}</td>
+                                <td class="border px-2 py-1 text-right">Rp {{ number_format($item->harga, 0, ',', '.') }}
+                                </td>
+                                <td class="border px-2 py-1 text-right">Rp {{ number_format($item->total, 0, ',', '.') }}
+                                </td>
 
                                 @if ($loop->first)
-                                    <td class="border px-2 py-1 text-center align-middle font-semibold" rowspan="{{ $rowspan }}">
+                                    <td class="border px-2 py-1 text-center align-middle font-semibold"
+                                        rowspan="{{ $rowspan }}">
                                         {{ $firstItem->diskon }}%
                                     </td>
-                                    <td class="border px-2 py-1 text-right align-middle font-semibold" rowspan="{{ $rowspan }}">
+                                    <td class="border px-2 py-1 text-right align-middle font-semibold"
+                                        rowspan="{{ $rowspan }}">
                                         Rp {{ number_format($firstItem->total_final, 0, ',', '.') }}
                                     </td>
                                 @endif
@@ -103,7 +123,8 @@
                 @if (!empty($search))
                     Tidak ada data pembelian yang cocok dengan kata kunci "{{ $search }}".
                 @else
-                    Belum ada data pembelian untuk bulan {{ \Carbon\Carbon::parse($filterBulan ?? now()->format('Y-m'))->format('F Y') }}.
+                    Belum ada data pembelian untuk bulan
+                    {{ \Carbon\Carbon::parse($filterBulan ?? now()->format('Y-m'))->format('F Y') }}.
                 @endif
             </p>
         </div>
@@ -113,66 +134,94 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('grafikPembelian').getContext('2d');
+            // === SCRIPT UNTUK GRAFIK 1: PEMBELIAN HARIAN ===
+            const ctxPembelian = document.getElementById('grafikPembelian').getContext('2d');
+            const labelsPembelian = @json($chartLabels ?? []);
+            const dataPembelian = @json($chartData ?? []);
 
-            // Data dari controller
-            const labels = @json($chartLabels ?? []);
-            const data = @json($chartData ?? []);
-
-            // Jika tidak ada data, tampilkan pesan
-            if (labels.length === 0 || data.length === 0) {
-                ctx.font = '16px Arial';
-                ctx.fillStyle = '#666';
-                ctx.textAlign = 'center';
-                ctx.fillText('Tidak ada data untuk ditampilkan', ctx.canvas.width / 2, ctx.canvas.height / 2);
-                return;
+            if (labelsPembelian.length === 0) {
+                const canvas = ctxPembelian.canvas;
+                ctxPembelian.font = '16px Arial';
+                ctxPembelian.fillStyle = '#666';
+                ctxPembelian.textAlign = 'center';
+                ctxPembelian.fillText('Tidak ada data untuk ditampilkan', canvas.width / 2, canvas.height / 2);
+            } else {
+                new Chart(ctxPembelian, {
+                    type: 'line',
+                    data: {
+                        labels: labelsPembelian,
+                        datasets: [{
+                            label: 'Total Pembelian',
+                            data: dataPembelian,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            tension: 0.1,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        /* ... (Opsi tidak berubah) ... */
+                    }
+                });
             }
 
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Total Pembelian',
-                        data: data,
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 2,
-                        tension: 0.1,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value, index, values) {
-                                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+            // === (BARU) SCRIPT UNTUK GRAFIK 2: PRODUK TERLARIS ===
+            const ctxProduk = document.getElementById('grafikProdukTerlaris').getContext('2d');
+            const labelsProduk = @json($produkLabels ?? []);
+            const dataProduk = @json($produkData ?? []);
+
+            if (labelsProduk.length === 0) {
+                const canvas = ctxProduk.canvas;
+                ctxProduk.font = '16px Arial';
+                ctxProduk.fillStyle = '#666';
+                ctxProduk.textAlign = 'center';
+                ctxProduk.fillText('Tidak ada produk terbeli bulan ini', canvas.width / 2, canvas.height / 2);
+            } else {
+                new Chart(ctxProduk, {
+                    type: 'bar', // Menggunakan tipe 'bar' untuk perbandingan
+                    data: {
+                        labels: labelsProduk,
+                        datasets: [{
+                            label: 'Jumlah Terbeli',
+                            data: dataProduk,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(54, 162, 235, 0.5)',
+                                'rgba(255, 206, 86, 0.5)',
+                                'rgba(75, 192, 192, 0.5)',
+                                'rgba(153, 102, 255, 0.5)',
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Jumlah (Qty)'
                                 }
                             }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += 'Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
-                                    }
-                                    return label;
-                                }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false // Sembunyikan legenda karena sudah jelas dari label
                             }
                         }
                     }
-                }
-            });
+                });
+            }
         });
     </script>
 

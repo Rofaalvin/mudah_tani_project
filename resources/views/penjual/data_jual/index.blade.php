@@ -9,14 +9,21 @@
     </div>
 
     <!-- GRAFIK PENJUALAN 6 BULAN TERAKHIR -->
-    <div class="mb-6 bg-white p-4 rounded-lg shadow-md">
-        <h3 class="text-lg font-semibold mb-2 text-gray-700">Grafik Penjualan 6 Bulan Terakhir</h3>
-        {{-- Pastikan canvas memiliki tinggi yang cukup --}}
-        <div style="height: 350px;">
-            <canvas id="grafikPenjualanBulanan"></canvas>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2 text-gray-700">Grafik Penjualan 6 Bulan Terakhir</h3>
+            <div class="relative" style="height: 350px;">
+                <canvas id="grafikPenjualanBulanan"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-2 text-gray-700">5 Produk Terlaris ({{ now()->format('F Y') }})</h3>
+            <div class="relative" style="height: 350px;">
+                <canvas id="grafikProdukTerlaris"></canvas>
+            </div>
         </div>
     </div>
-    <!-- AKHIR GRAFIK -->
 
     <div class="mb-4">
         <form action="{{ route('data_jual.index') }}" method="GET" class="flex items-center">
@@ -270,6 +277,59 @@
                     }
                 }
             });
+            const ctxProduk = document.getElementById('grafikProdukTerlaris').getContext('2d');
+            const labelsProduk = @json($produkLabels ?? []);
+            const dataProduk = @json($produkData ?? []);
+
+            if (labelsProduk.length > 0) {
+                new Chart(ctxProduk, {
+                    type: 'bar',
+                    data: {
+                        labels: labelsProduk,
+                        datasets: [{
+                            label: 'Jumlah Terjual',
+                            data: dataProduk,
+                            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y', // Membuat bar menjadi horizontal agar nama produk mudah dibaca
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Jumlah Terjual (Qty)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Terjual: ' + new Intl.NumberFormat('id-ID').format(
+                                            context.parsed.x);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                const canvas = ctxProduk.canvas;
+                ctxProduk.font = '16px Arial';
+                ctxProduk.fillStyle = '#6B7280';
+                ctxProduk.textAlign = 'center';
+                ctxProduk.fillText('Tidak ada produk terjual bulan ini.', canvas.width / 2, 50);
+            }
         });
     </script>
 @endpush

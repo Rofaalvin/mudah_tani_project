@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 13, 2025 at 07:45 PM
+-- Generation Time: Jul 15, 2025 at 05:20 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -474,7 +474,8 @@ INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, 
 ('o1KEL4pywfq3aVUhVCvOhbYMSJ1AMeOiRFTyHi9y', NULL, '192.168.100.141', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Mobile/15E148 Safari/604.1', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiN3Z1V2Z1dDNpNFNvTGVNOVE4ZGRvNHY0WWFlUFB0WVpjZlFXSm1EZSI7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xNDE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1752426341),
 ('PFMFVNNzCNKuABaoNxyXGQJnYQIkoFx4yRK5YhZ9', 2, '192.168.100.141', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiNHdkY0lneURjRTUza29Yc1FRMzZhejlLZ1RqV0k3WENlR0w2VXB4RyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDU6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xNDE6ODAwMC9teV9vcmRlcnMvaGlzdG9yeSI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9fQ==', 1752428624),
 ('PgKo4Jz61yfKekpkXpncHKNs6qimlwtFP00LTfBY', NULL, '192.168.100.141', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiSlNyaXpXbEpYZDlEdjdVVzFGbUhZVlBrRjREV2tKbWU2eFJuWGQ5WCI7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xNDE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1752426339),
-('WBPmrgiFCohtWhASeqf4g6wO9GG1HiPqBDmwHPD4', 4, '192.168.100.141', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiOXlJT2ZQdnR4aG8zN1FQQjdsZUxmSUU2RzA1T1lLbmlXSjlwQkRxQyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xNDE6ODAwMC9kYXRhX2p1YWwiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo0O30=', 1752428622);
+('WBPmrgiFCohtWhASeqf4g6wO9GG1HiPqBDmwHPD4', 4, '192.168.100.141', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiOXlJT2ZQdnR4aG8zN1FQQjdsZUxmSUU2RzA1T1lLbmlXSjlwQkRxQyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xNDE6ODAwMC9kYXRhX2p1YWwiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo0O30=', 1752428622),
+('wqPlL0mf1y8gmT1A2gJ9DbSiCEiG3Anfrjpngong', 2, '192.168.1.133', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoicktxNGZEamM3Vmt6dUlHeXFLUHlLV3FOMlJhUmg0V1doR3A4S2dsNiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzM6Imh0dHA6Ly8xOTIuMTY4LjEuMTMzOjgwMDAvcHJvZmlsZSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7fQ==', 1752549338);
 
 -- --------------------------------------------------------
 
@@ -559,7 +560,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `no_hp`, `alamat`, `role`, `created_at`, `updated_at`) VALUES
 (1, 'Admin', 'admin@example.com', NULL, '$2y$12$BuL7Ad7WLgvSECwwFiluOOKa6a8F.hzTdlwI.Oz1wn9D6Hn6Mag0m', NULL, NULL, NULL, 'admin', '2025-05-21 01:29:01', '2025-05-21 01:29:01'),
-(2, 'Test', 'test@example.com', NULL, '$2y$12$/ywJSDL85dp8GMT43wRHjOSCxmSxq9ff23ncNbPtSOJFgex7FyOtW', NULL, 123456789, 'Kediri', 'pembeli', '2025-05-21 01:22:05', '2025-05-21 08:14:44'),
+(2, 'Test', 'test@example.com', NULL, '$2y$12$/ywJSDL85dp8GMT43wRHjOSCxmSxq9ff23ncNbPtSOJFgex7FyOtW', NULL, 123456789, 'Jl. Ahman Yani, Blitar, Jawa Timur', 'pembeli', '2025-05-21 01:22:05', '2025-07-14 20:15:38'),
 (4, 'Penjual', 'penjual@example.com', NULL, '$2y$12$3vSvv0fL0XN67fVXsi2u4etKJ2se7yMsjqGFZEQn8EnEhNmlpQyUK', NULL, 85707098009, 'Sanankulon', 'penjual', '2025-05-21 01:42:53', '2025-05-21 08:10:21'),
 (12, 'Penjual 2', 'penjual2@example.com', NULL, '$2y$12$/GI1iBAfQ4yRDRPrMpm.JerzjMK/wVYmZSFDkt3N8R7S98XdL1HFK', NULL, 12345678, 'Kediri', 'penjual', '2025-05-21 08:10:49', '2025-05-21 08:10:49');
 

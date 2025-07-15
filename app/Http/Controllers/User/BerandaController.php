@@ -158,22 +158,31 @@ class BerandaController extends Controller
     }
 
     public function checkout()
-    {
-        // Cari pesanan terakhir dari pengguna yang sedang login
-        // yang memiliki alamat pengiriman yang tidak kosong.
-        $lastOrderWithAddress = Penjualan::where('id_pembeli', auth()->id())
+{
+    // Dapatkan data pengguna yang sedang login
+    $user = auth()->user();
+
+    // Prioritas 1: Cari alamat dari kolom 'address' di tabel 'users'.
+    // Menggunakan !empty() untuk memastikan kolom tidak null atau string kosong.
+    $shippingAddress = !empty($user->alamat) ? $user->alamat : null;
+
+    // Prioritas 2: Jika alamat di tabel 'users' kosong,
+    // maka cari 'shipping_address' dari pesanan terakhir.
+    if (is_null($shippingAddress)) {
+        // Cari pesanan terakhir dari pengguna yang memiliki alamat pengiriman.
+        $lastOrderWithAddress = Penjualan::where('id_pembeli', $user->id)
             ->whereNotNull('shipping_address')
             ->where('shipping_address', '!=', '')
             ->latest() // Mengurutkan dari yang terbaru
             ->first();
 
-        // Ambil alamatnya jika pesanan ditemukan, jika tidak, null.
-        $lastShippingAddress = $lastOrderWithAddress ? $lastOrderWithAddress->shipping_address : null;
-        
-        // Kirim data alamat terakhir ke view checkout
-        // Pastikan nama view sudah benar (misal: 'beranda.checkout')
-        return view('beranda.checkout', [
-            'lastShippingAddress' => $lastShippingAddress
-        ]);
+        // Ambil alamatnya jika pesanan ditemukan.
+        $shippingAddress = $lastOrderWithAddress ? $lastOrderWithAddress->shipping_address : null;
     }
+    
+    // Kirim data alamat yang ditemukan ke view.
+    return view('beranda.checkout', [
+        'lastShippingAddress' => $shippingAddress
+    ]);
+}
 }

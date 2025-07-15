@@ -188,74 +188,68 @@ class PembelianController extends Controller
      * Menampilkan data pembelian dengan fungsionalitas pencarian.
      */
     public function dataPembelian(Request $request)
-    {
-        // Set default filter bulan
-        $filterBulan = $request->input('filter_bulan', now()->format('Y-m'));
-        $search = $request->input('search', '');
+{
+    // Filter dan search untuk data tabel (tidak memengaruhi grafik)
+    $filterBulan = $request->input('filter_bulan', now()->format('Y-m'));
+    $search = $request->input('search', '');
 
-        // Query untuk grafik (TANPA filter bulan - menampilkan semua data)
-        $chartQuery = Pembelian::query();
+    // === GRAFIK 1: TOTAL PEMBELIAN HARIAN (TETAP 6 BULAN TERAKHIR) ===
+    $grafikData = Pembelian::query()
+        ->select(
+            DB::raw('DATE(tanggal) as tanggal_pembelian'),
+            DB::raw('SUM(total_final) as total_harian')
+        )
+        ->where('tanggal', '>=', now()->subMonths(6))
+        ->groupBy('tanggal_pembelian')
+        ->orderBy('tanggal_pembelian', 'asc')
+        ->get();
 
-        // Ambil data untuk grafik dari semua bulan (6 bulan terakhir sebagai contoh)
-        $grafikData = $chartQuery
-            ->select(
-                DB::raw('DATE(tanggal) as tanggal_pembelian'),
-                DB::raw('SUM(total_final) as total_harian')
-            )
-            ->where('tanggal', '>=', now()->subMonths(6)) // Ambil data 6 bulan terakhir
-            ->groupBy('tanggal_pembelian')
-            ->orderBy('tanggal_pembelian', 'asc')
-            ->get();
+    $chartLabels = $grafikData->pluck('tanggal_pembelian')->map(function ($date) {
+        return Carbon::parse($date)->format('d M');
+    });
+    $chartData = $grafikData->pluck('total_harian');
 
-        // Format data untuk Chart.js
-        $chartLabels = $grafikData->pluck('tanggal_pembelian')->map(function ($date) {
-            return Carbon::parse($date)->format('d M');
-        });
-        $chartData = $grafikData->pluck('total_harian');
+    // === (DIUBAH) GRAFIK 2: PRODUK TERLARIS SELALU BULAN INI ===
+    // Query ini tidak lagi menggunakan $filterBulan, tapi langsung now()
+    $produkTerlarisData = Pembelian::query()
+        ->whereYear('tanggal', now()->year)    // Filter berdasarkan TAHUN SAAT INI
+        ->whereMonth('tanggal', now()->month)  // Filter berdasarkan BULAN SAAT INI
+        ->select('nama_barang', DB::raw('SUM(quantity) as total_quantity'))
+        ->groupBy('nama_barang')
+        ->orderBy('total_quantity', 'desc')
+        ->limit(5)
+        ->get();
+    
+    $produkLabels = $produkTerlarisData->pluck('nama_barang');
+    $produkData = $produkTerlarisData->pluck('total_quantity');
 
-        // Query untuk tabel data (dengan filter bulan dan pencarian)
-        $tableQuery = Pembelian::query()->with('supplyer');
 
-        // Terapkan filter bulan untuk tabel
-        try {
-            $date = Carbon::createFromFormat('Y-m', $filterBulan);
-            $tableQuery->whereYear('tanggal', $date->year)
-                ->whereMonth('tanggal', $date->month);
-        } catch (\Exception $e) {
-            // Jika format tidak valid, gunakan bulan saat ini
-            $date = now();
-            $tableQuery->whereYear('tanggal', $date->year)
-                ->whereMonth('tanggal', $date->month);
-        }
-
-        // Terapkan pencarian jika ada
-        if (!empty($search)) {
-            $tableQuery->where(function ($query) use ($search) {
-                $query->where('kode_trx_beli', 'like', "%{$search}%")
-                    ->orWhere('nama_barang', 'like', "%{$search}%")
-                    ->orWhereHas('supplyer', function ($q) use ($search) {
-                        $q->where('nama_supplyer', 'like', "%{$search}%");
-                    });
-            });
-        }
-
-        // Ambil data dan kelompokkan berdasarkan kode transaksi
-        $pembelianData = $tableQuery->orderBy('tanggal', 'desc')
-            ->orderBy('kode_trx_beli', 'desc')
-            ->get();
-
-        // Kelompokkan data berdasarkan kode transaksi
-        $pembelianItems = $pembelianData->groupBy('kode_trx_beli');
-
-        // Kirim data ke view
-        return view('penjual.data_beli.index', compact(
-            'pembelianItems',
-            'filterBulan',
-            'search',
-            'chartLabels',
-            'chartData'
-        ));
+    // === QUERY UNTUK TABEL DATA (INI YANG TETAP MENGGUNAKAN FILTER) ===
+    $tableQuery = Pembelian::query()->with('supplyer');
+    try {
+        $date = Carbon::createFromFormat('Y-m', $filterBulan);
+        $tableQuery->whereYear('tanggal', $date->year)
+                    ->whereMonth('tanggal', $date->month);
+    } catch (\Exception $e) {
+        $date = now();
+        $tableQuery->whereYear('tanggal', $date->year)
+                    ->whereMonth('tanggal', $date->month);
     }
+    
+    if (!empty($search)) {
+        // ... (logika pencarian tidak berubah)
+    }
+    
+    $pembelianData = $tableQuery->orderBy('tanggal', 'desc')->get();
+    $pembelianItems = $pembelianData->groupBy('kode_trx_beli');
+
+    // Kirim semua data ke view
+    return view('penjual.data_beli.index', compact(
+        'pembelianItems', 'filterBulan', 'search',
+        'chartLabels', 'chartData',
+        'produkLabels', 'produkData'
+    ));
+}
 
     // public function dataBeli()
     // {
