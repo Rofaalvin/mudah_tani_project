@@ -28,6 +28,7 @@ class Penjualan extends Model
         'shipping_cost',
         'shipping_address',
         'shipping_status',
+        'from_cashier', // Menandakan apakah transaksi berasal dari kasir
     ];
 
     // Relasi dengan Pembeli

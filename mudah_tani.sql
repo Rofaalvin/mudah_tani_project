@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 15, 2025 at 05:20 AM
+-- Generation Time: Jul 17, 2025 at 06:44 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -312,7 +312,8 @@ INSERT INTO `pembelian` (`id`, `kode_trx_beli`, `id_supplyer`, `id_barang`, `nam
 (19, 'PB20250624003', 2, 'B0003', 'Cangkul', '6', 17000, 102000, '10.00', '91800.00', '2025-06-24 17:25:02', NULL, NULL),
 (20, 'PB20250624004', 1, 'B0001', 'Pestisida', '1', 20000, 20000, '5.00', '76000.00', '2025-06-24 17:25:34', NULL, NULL),
 (21, 'PB20250624004', 1, 'B0002', 'Pupuk Urea', '1', 43000, 43000, '5.00', '76000.00', '2025-06-24 17:25:34', NULL, NULL),
-(22, 'PB20250624004', 1, 'B0003', 'Cangkul', '1', 17000, 17000, '5.00', '76000.00', '2025-06-24 17:25:34', NULL, NULL);
+(22, 'PB20250624004', 1, 'B0003', 'Cangkul', '1', 17000, 17000, '5.00', '76000.00', '2025-06-24 17:25:34', NULL, NULL),
+(23, 'PB20250715001', 1, 'B0001', 'Pestisida', '1', 20000, 20000, '0.00', '20000.00', '2025-07-15 05:18:22', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -362,6 +363,7 @@ CREATE TABLE `penjualan` (
   `tanggal` date NOT NULL,
   `snap_token` varchar(255) DEFAULT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'pending',
+  `from_cashier` tinyint(1) NOT NULL DEFAULT 0,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -370,11 +372,13 @@ CREATE TABLE `penjualan` (
 -- Dumping data for table `penjualan`
 --
 
-INSERT INTO `penjualan` (`id`, `kode_trx_jual`, `id_pembeli`, `id_barang`, `nama_barang`, `quantity`, `harga`, `delivery_method`, `shipping_cost`, `shipping_address`, `shipping_status`, `total`, `diskon`, `total_final`, `tanggal`, `snap_token`, `status`, `updated_at`, `created_at`) VALUES
-(39, 'PB20250713001', '2', NULL, NULL, NULL, NULL, 'delivery', '12000.00', 'coba lagi semoga bisa', 'delivered', 55000, '0.00', '55000.00', '2025-07-13', NULL, 'pending', '2025-07-13 10:22:22', '2025-07-13 10:08:33'),
-(40, 'PB20250713006', '2', NULL, NULL, NULL, NULL, 'delivery', '12000.00', 'coba lagi semoga bisa', 'shipped', 55000, '0.00', '55000.00', '2025-07-13', '167de1c3-18d3-4557-8dc6-2549f0f81a36', 'paid', '2025-07-13 10:43:42', '2025-07-13 10:11:16'),
-(41, 'PB20250713011', '2', NULL, NULL, NULL, NULL, 'delivery', '12000.00', 'coba lagi semoga bisa lagi', NULL, 32000, '0.00', '32000.00', '2025-07-13', 'dfeca924-f17d-459b-ad19-2768528e9294', 'pending', '2025-07-13 10:26:00', '2025-07-13 10:25:59'),
-(42, 'PB20250713016', '2', NULL, NULL, NULL, NULL, 'delivery', '12000.00', 'coba lagi semoga bisa lagi', 'pending', 46000, '0.00', '46000.00', '2025-07-13', '7796b7c1-91d2-4cfc-a237-778dbff57a35', 'pending', '2025-07-13 10:27:27', '2025-07-13 10:27:26');
+INSERT INTO `penjualan` (`id`, `kode_trx_jual`, `id_pembeli`, `id_barang`, `nama_barang`, `quantity`, `harga`, `delivery_method`, `shipping_cost`, `shipping_address`, `shipping_status`, `total`, `diskon`, `total_final`, `tanggal`, `snap_token`, `status`, `from_cashier`, `updated_at`, `created_at`) VALUES
+(39, 'PB20250713001', '2', NULL, NULL, NULL, NULL, 'delivery', '12000.00', 'coba lagi semoga bisa', 'delivered', 55000, '0.00', '55000.00', '2025-07-13', NULL, 'pending', 0, '2025-07-13 10:22:22', '2025-07-13 10:08:33'),
+(40, 'PB20250713006', '2', NULL, NULL, NULL, NULL, 'delivery', '12000.00', 'coba lagi semoga bisa', 'shipped', 55000, '0.00', '55000.00', '2025-07-13', '167de1c3-18d3-4557-8dc6-2549f0f81a36', 'paid', 0, '2025-07-13 10:43:42', '2025-07-13 10:11:16'),
+(41, 'PB20250713011', '2', NULL, NULL, NULL, NULL, 'delivery', '12000.00', 'coba lagi semoga bisa lagi', NULL, 32000, '0.00', '32000.00', '2025-07-13', 'dfeca924-f17d-459b-ad19-2768528e9294', 'pending', 0, '2025-07-13 10:26:00', '2025-07-13 10:25:59'),
+(42, 'PB20250713016', '2', NULL, NULL, NULL, NULL, 'delivery', '12000.00', 'coba lagi semoga bisa lagi', 'pending', 46000, '0.00', '46000.00', '2025-07-13', '7796b7c1-91d2-4cfc-a237-778dbff57a35', 'pending', 0, '2025-07-13 10:27:27', '2025-07-13 10:27:26'),
+(43, 'PB20250715001', '2', NULL, NULL, NULL, NULL, 'delivery', '12000.00', 'Jl. Ahman Yani, Blitar, Jawa Timur', 'processing', 32000, '0.00', '32000.00', '2025-07-15', 'a8ac040b-b13c-4650-a58c-b114021d6610', 'paid', 0, '2025-07-17 15:36:42', '2025-07-15 00:32:32'),
+(45, 'PB20250717001', '2', NULL, NULL, NULL, NULL, 'pickup', '0.00', NULL, NULL, 20000, '0.00', '20000.00', '2025-07-17', NULL, 'paid', 1, '2025-07-17 15:36:49', '2025-07-17 08:35:30');
 
 -- --------------------------------------------------------
 
@@ -402,7 +406,9 @@ INSERT INTO `penjualan_items` (`id`, `penjualan_id`, `id_produk`, `nama_produk`,
 (44, 39, 'B0002', 'Pupuk Urea', 43000, 1, 43000, '2025-07-13 10:08:33', '2025-07-13 10:08:33'),
 (45, 40, 'B0002', 'Pupuk Urea', 43000, 1, 43000, '2025-07-13 10:11:16', '2025-07-13 10:11:16'),
 (46, 41, 'B0001', 'Pestisida', 20000, 1, 20000, '2025-07-13 10:25:59', '2025-07-13 10:25:59'),
-(47, 42, 'B0003', 'Cangkul', 17000, 2, 34000, '2025-07-13 10:27:26', '2025-07-13 10:27:26');
+(47, 42, 'B0003', 'Cangkul', 17000, 2, 34000, '2025-07-13 10:27:26', '2025-07-13 10:27:26'),
+(48, 43, 'B0001', 'Pestisida', 20000, 1, 20000, '2025-07-15 00:32:32', '2025-07-15 00:32:32'),
+(50, 45, 'B0001', 'Pestisida', 20000, 1, 20000, '2025-07-17 08:35:30', '2025-07-17 08:35:30');
 
 -- --------------------------------------------------------
 
@@ -426,7 +432,7 @@ CREATE TABLE `produk` (
 --
 
 INSERT INTO `produk` (`id_produk`, `nama_produk`, `harga`, `created_at`, `updated_at`, `stok`, `deskripsi`, `gambar`) VALUES
-('B0001', 'Pestisida', '20000', '2025-05-02 23:13:47', '2025-07-13 10:25:59', '12', NULL, 'images/produk/1746252827_pestisida.jpg'),
+('B0001', 'Pestisida', '20000', '2025-05-02 23:13:47', '2025-07-17 08:35:30', '10', NULL, 'images/produk/1746252827_pestisida.jpg'),
 ('B0002', 'Pupuk Urea', '43000', '2025-05-02 23:14:19', '2025-07-13 10:11:16', '10', NULL, 'images/produk/1746252859_pupuk urea.jpg'),
 ('B0003', 'Cangkul', '17000', '2025-05-02 23:15:00', '2025-07-13 10:27:26', '22', 'Cangkul serbaguna dan kuat serta tahan karat', 'images/produk/1746252900_cangkul.jpg');
 
@@ -471,11 +477,9 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('o1KEL4pywfq3aVUhVCvOhbYMSJ1AMeOiRFTyHi9y', NULL, '192.168.100.141', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Mobile/15E148 Safari/604.1', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiN3Z1V2Z1dDNpNFNvTGVNOVE4ZGRvNHY0WWFlUFB0WVpjZlFXSm1EZSI7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xNDE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1752426341),
-('PFMFVNNzCNKuABaoNxyXGQJnYQIkoFx4yRK5YhZ9', 2, '192.168.100.141', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiNHdkY0lneURjRTUza29Yc1FRMzZhejlLZ1RqV0k3WENlR0w2VXB4RyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDU6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xNDE6ODAwMC9teV9vcmRlcnMvaGlzdG9yeSI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9fQ==', 1752428624),
-('PgKo4Jz61yfKekpkXpncHKNs6qimlwtFP00LTfBY', NULL, '192.168.100.141', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiSlNyaXpXbEpYZDlEdjdVVzFGbUhZVlBrRjREV2tKbWU2eFJuWGQ5WCI7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xNDE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1752426339),
-('WBPmrgiFCohtWhASeqf4g6wO9GG1HiPqBDmwHPD4', 4, '192.168.100.141', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiOXlJT2ZQdnR4aG8zN1FQQjdsZUxmSUU2RzA1T1lLbmlXSjlwQkRxQyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xNDE6ODAwMC9kYXRhX2p1YWwiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo0O30=', 1752428622),
-('wqPlL0mf1y8gmT1A2gJ9DbSiCEiG3Anfrjpngong', 2, '192.168.1.133', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoicktxNGZEamM3Vmt6dUlHeXFLUHlLV3FOMlJhUmg0V1doR3A4S2dsNiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzM6Imh0dHA6Ly8xOTIuMTY4LjEuMTMzOjgwMDAvcHJvZmlsZSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7fQ==', 1752549338);
+('EufbNRpkqdv6UykwBX8LIptKJfJzhD4HUT9aT4L9', 1, '192.168.96.65', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiY1BxWFZHTHQxOHA5M3ZQbUc1VWtoOERZM3p5RzNOUlpTSEc4d2UxcyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xOTIuMTY4Ljk2LjY1OjgwMDAvc3RvayI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9fQ==', 1752566039),
+('NYZ8If3V5E5CyTBhnI76FyYIJ3qQKm548SilHgij', 2, '192.168.96.65', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiSHZobElGUlhob1o3RHFDY1BNMkFzbWJSU1Y3ajZ6cDd6VmVSNkc5cSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czo0MzoiaHR0cDovLzE5Mi4xNjguOTYuNjU6ODAwMC9teV9vcmRlcnMvaGlzdG9yeSI7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjM1OiJodHRwOi8vMTkyLjE2OC45Ni42NTo4MDAwL2NhcnQvbGlzdCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTo1OntzOjI2OiIwMUswNko3M0JYSzQwNDI4TTZZSEY4M0FYMiI7TjtzOjI2OiIwMUswNko3M1pBS1dHNkI2RU5RQlo3NllCMSI7TjtzOjI2OiIwMUswNko3NVFZVEdLM1MwVldNN0JTUk1ZTSI7TjtzOjI2OiIwMUswNko3NloxODg1MjlWM0s0S0Q3MUVQViI7TjtzOjI2OiIwMUswNko3QjFQOUJYUUdCWldGQVM2RUpUWSI7Tjt9czo0OiJjYXJ0IjthOjE6e3M6NToiQjAwMDIiO2E6NDp7czoxMToibmFtYV9wcm9kdWsiO3M6MTA6IlB1cHVrIFVyZWEiO3M6NToiaGFyZ2EiO3M6NToiNDMwMDAiO3M6NjoiZ2FtYmFyIjtzOjM5OiJpbWFnZXMvcHJvZHVrLzE3NDYyNTI4NTlfcHVwdWsgdXJlYS5qcGciO3M6ODoicXVhbnRpdHkiO2k6MTA7fX19', 1752567098),
+('o92Ur8TRACzFEIYHmPlZoNFu7CLirpmSg0tViX5N', 4, '192.168.1.12', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiMXhHWlVyWkM1dzQxMjNxNVh0eFNPZnZaMmVzaFg0ZTVOdkdxVGFQRSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDk6Imh0dHA6Ly8xOTIuMTY4LjEuMTI6ODAwMC9kYXRhX2p1YWw/c3VtYmVyPXdlYnNpdGUiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjM6InVybCI7YToxOntzOjg6ImludGVuZGVkIjtzOjI5OiJodHRwOi8vMTkyLjE2OC4xLjEyOjgwMDAvc3RvayI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjQ7czoxNjoic2VsZWN0ZWRfcGVtYmVsaSI7czo0OiJUZXN0IjtzOjIyOiJQSFBERUJVR0JBUl9TVEFDS19EQVRBIjthOjA6e319', 1752766644);
 
 -- --------------------------------------------------------
 
@@ -791,19 +795,19 @@ ALTER TABLE `pembeli`
 -- AUTO_INCREMENT for table `pembelian`
 --
 ALTER TABLE `pembelian`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `penjualan`
 --
 ALTER TABLE `penjualan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `penjualan_items`
 --
 ALTER TABLE `penjualan_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `supplyer`

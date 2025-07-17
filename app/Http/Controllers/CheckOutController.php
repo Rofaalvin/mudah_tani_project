@@ -71,6 +71,7 @@ class CheckOutController extends Controller
             'shipping_cost' => $shippingCost,
             'shipping_address' => $request->input('shipping_address'),
             'shipping_status' => 'pending',
+            'from_cashier' => false,
         ]);
 
         // Simpan detail item ke tabel PenjualanItem

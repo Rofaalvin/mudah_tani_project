@@ -105,7 +105,7 @@
                             @if (isset($produk->stok))
                                 <span
                                     class="text-xs px-2 py-1 rounded-full {{ $produk->stok > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                    {{ $produk->stok > 0 ? 'In Stock' : 'Out of Stock' }}
+                                    {{ $produk->stok > 0 ? 'In Stock' : 'Out of Stock' }} - {{ $produk->stok }} pcs
                                 </span>
                             @endif
                         </div>

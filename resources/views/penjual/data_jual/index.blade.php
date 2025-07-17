@@ -25,13 +25,33 @@
         </div>
     </div>
 
+    <div class="mb-4 border-b border-gray-200">
+        <nav class="flex -mb-px space-x-6" aria-label="Tabs">
+            <a href="{{ route('data_jual.index', array_merge(request()->except('page', 'sumber'), ['sumber' => 'semua'])) }}"
+                class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm {{ $sumber === 'semua' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                Semua Penjualan
+            </a>
+            <a href="{{ route('data_jual.index', array_merge(request()->except('page', 'sumber'), ['sumber' => 'kasir'])) }}"
+                class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm {{ $sumber === 'kasir' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                Penjualan Kasir
+            </a>
+            <a href="{{ route('data_jual.index', array_merge(request()->except('page', 'sumber'), ['sumber' => 'website'])) }}"
+                class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm {{ $sumber === 'website' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                Penjualan Website
+            </a>
+        </nav>
+    </div>
+
     <div class="mb-4">
         <form action="{{ route('data_jual.index') }}" method="GET" class="flex items-center">
+            <input type="hidden" name="sumber" value="{{ $sumber }}">
+
             <input type="search" name="search"
                 class="border border-gray-300 rounded-l px-2 py-1 w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="Cari kode transaksi, nama pembeli, atau nama produk..." value="{{ $search ?? '' }}">
+                placeholder="Cari kode transaksi, pembeli, produk..." value="{{ $search ?? '' }}">
             <button type="submit" class="bg-gray-700 text-white px-4 py-1 rounded-r hover:bg-gray-800">Cari</button>
-            <a href="{{ route('data_jual.index') }}" class="text-sm text-gray-600 hover:text-gray-900 ml-4">Reset</a>
+            <a href="{{ route('data_jual.index', ['sumber' => $sumber]) }}"
+                class="text-sm text-gray-600 hover:text-gray-900 ml-4">Reset</a>
         </form>
     </div>
 

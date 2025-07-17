@@ -125,6 +125,7 @@ class PenjualanController extends Controller
             'total_final' => $totalFinal, // Menyimpan total setelah diskon
             'tanggal' => now(),
             'status' => 'paid',
+            'from_cashier' => true, // Menandakan transaksi dari kasir
         ]);
 
         // Simpan setiap item ke tabel penjualan_items (tidak ada perubahan di sini)
@@ -176,71 +177,82 @@ class PenjualanController extends Controller
 
     public function dataPenjualan(Request $request)
     {
-        // ... (Logika Grafik Penjualan Bulanan tidak berubah)
-        // 1. Tentukan rentang waktu...
+        // === Logika Grafik (Tidak Berubah) ===
         $endDate = Carbon::now();
         $startDate = Carbon::now()->copy()->subMonths(5)->startOfMonth();
-
-        // 2. Ambil data penjualan bulanan...
         $salesData = Penjualan::select(
             DB::raw('YEAR(tanggal) as year, MONTH(tanggal) as month'),
             DB::raw('SUM(total_final) as total_bulanan')
         )
+            ->where('status', '!=', 'pending') // Hanya hitung penjualan yang berhasil
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->groupBy('year', 'month')
-            ->get()
-            ->keyBy(function ($item) {
-                return $item->year . '-' . $item->month;
-            });
+            ->get()->keyBy(fn($item) => $item->year . '-' . $item->month);
 
-        // 3. Siapkan array untuk chart bulanan...
         $chartLabels = [];
         $chartData = [];
-
-        // 4. Lakukan perulangan...
         for ($i = 5; $i >= 0; $i--) {
             $date = Carbon::now()->subMonths($i);
             $chartLabels[] = $date->isoFormat('MMM YYYY');
             $key = $date->year . '-' . $date->month;
-            $chartData[] = isset($salesData[$key]) ? (float) $salesData[$key]->total_bulanan : 0;
+            $chartData[] = $salesData[$key]->total_bulanan ?? 0;
         }
 
-        // === (BARU) LOGIKA UNTUK GRAFIK PRODUK TERLARIS BULAN INI ===
         $produkTerlarisData = PenjualanItem::select(
             'nama_produk',
             DB::raw('SUM(quantity) as total_terjual')
-        )
-            // Filter penjualan yang terjadi di tahun dan bulan saat ini
-            ->whereHas('penjualan', function ($query) {
-                $query->whereYear('tanggal', now()->year)
-                    ->whereMonth('tanggal', now()->month);
-            })
+        )->whereHas('penjualan', function ($query) {
+            $query->whereYear('tanggal', now()->year)
+                ->whereMonth('tanggal', now()->month)
+                ->where('status', '!=', 'pending');
+        })
             ->groupBy('nama_produk')
             ->orderBy('total_terjual', 'desc')
-            ->limit(5) // Ambil 5 produk teratas
+            ->limit(5)
             ->get();
 
         $produkLabels = $produkTerlarisData->pluck('nama_produk');
         $produkData = $produkTerlarisData->pluck('total_terjual');
-        // === AKHIR BLOK BARU ===
 
-
-        // ... (Logika untuk tabel data penjualan tidak berubah)
+        // === (BARU) LOGIKA UNTUK TABEL DATA PENJUALAN DENGAN FILTER ===
         $search = $request->input('search');
+        $sumber = $request->input('sumber', 'semua'); // Ambil parameter 'sumber', default 'semua'
+
         $query = Penjualan::with(['user', 'items'])->latest('tanggal');
-        if ($search) {
-            // ... (logika search tidak berubah)
+
+        // Filter berdasarkan sumber (Kasir atau Website)
+        if ($sumber === 'kasir') {
+            $query->where('from_cashier', true);
+        } elseif ($sumber === 'website') {
+            $query->where('from_cashier', false);
         }
+        // Jika 'semua', tidak ada filter tambahan
+
+        // Filter berdasarkan pencarian
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('kode_trx_jual', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('items', function ($itemQuery) use ($search) {
+                        $itemQuery->where('nama_produk', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // Ambil data dengan paginasi
         $penjualans = $query->paginate(10)->appends($request->query());
 
-        // Kirim semua data ke view
+        // Kirim semua data ke view, termasuk variabel 'sumber'
         return view('penjual.data_jual.index', compact(
             'penjualans',
             'search',
+            'sumber',         // Data baru untuk status tab aktif
             'chartLabels',
             'chartData',
-            'produkLabels',   // Data baru untuk grafik produk
-            'produkData'      // Data baru untuk grafik produk
+            'produkLabels',
+            'produkData'
         ));
     }
 
